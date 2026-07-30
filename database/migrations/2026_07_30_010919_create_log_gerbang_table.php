@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('log_gerbang', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('izin_id')->constrained('izin_keluar')->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('izin_id')->constrained('izin_keluar')->cascadeOnDelete();
             $table->enum('tipe', ['keluar', 'kembali']);
             $table->timestamp('waktu')->useCurrent();
-            $table->foreignId('dicatat_oleh')->constrained('users')->cascadeOnDelete()
+            $table->foreignUuid('dicatat_oleh')->constrained('users')->cascadeOnDelete()
                   ->comment('user_id satpam');
         });
     }

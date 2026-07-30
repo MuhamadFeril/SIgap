@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('izin_keluar', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('siswa_id')->constrained('siswa')->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('siswa_id')->constrained('siswa')->cascadeOnDelete();
             $table->string('alasan', 100);
             $table->text('deskripsi')->nullable()->comment('keterangan tambahan dari siswa');
             $table->string('bukti_path')->nullable()->comment('path file foto/pdf bukti (opsional)');
             $table->time('jam_keluar_rencana');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
 
-            $table->foreignId('disetujui_oleh')->nullable()
+            $table->foreignUuid('disetujui_oleh')->nullable()
                   ->constrained('users')->nullOnDelete();
             $table->timestamp('waktu_keputusan')->nullable();
 
@@ -29,9 +29,9 @@ return new class extends Migration
             $table->timestamp('jam_kembali_aktual')->nullable()
                   ->comment('diisi satpam saat tandai kembali');
 
-            $table->foreignId('dicatat_keluar_oleh')->nullable()
+            $table->foreignUuid('dicatat_keluar_oleh')->nullable()
                   ->constrained('users')->nullOnDelete();
-            $table->foreignId('dicatat_kembali_oleh')->nullable()
+            $table->foreignUuid('dicatat_kembali_oleh')->nullable()
                   ->constrained('users')->nullOnDelete();
 
             $table->timestamps();

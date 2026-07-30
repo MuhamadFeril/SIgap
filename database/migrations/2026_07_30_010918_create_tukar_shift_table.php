@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tukar_shift', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('jadwal_id')->constrained('jadwal_satpam')->cascadeOnDelete()
+            $table->uuid('id')->primary();
+            $table->foreignUuid('jadwal_id')->constrained('jadwal_satpam')->cascadeOnDelete()
                   ->comment('jadwal yang ingin ditukar');
-            $table->foreignId('pengaju_id')->constrained('satpam')->cascadeOnDelete()
+            $table->foreignUuid('pengaju_id')->constrained('satpam')->cascadeOnDelete()
                   ->comment('satpam yang mengajukan');
-            $table->foreignId('penerima_id')->constrained('satpam')->cascadeOnDelete()
+            $table->foreignUuid('penerima_id')->constrained('satpam')->cascadeOnDelete()
                   ->comment('satpam pengganti');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->foreignId('disetujui_oleh')->nullable()
+            $table->foreignUuid('disetujui_oleh')->nullable()
                   ->constrained('users')->nullOnDelete()
                   ->comment('admin yang menyetujui');
             $table->timestamps();

@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('jadwal_satpam', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('satpam_id')->constrained('satpam')->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('satpam_id')->constrained('satpam')->cascadeOnDelete();
             $table->date('tanggal');
             $table->enum('shift', ['pagi', 'siang', 'malam']);
             $table->enum('status_hadir', ['belum_presensi', 'hadir', 'tidak_hadir'])
