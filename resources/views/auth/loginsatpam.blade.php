@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk — SIGAP</title>
+    <title>Masuk Satpam — SIGAP</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
         :root {
+            --theme-color: #4b5b56;
+            --theme-light: #60756e;
+            --theme-bg: #e8edea;
+            
             --pine: #153f37;
-            --pine-light: #1e5a4d;
             --amber: #c9821e;
             --ink: #182421;
             --ink-soft: #4b5b56;
@@ -45,7 +48,7 @@
 
         .auth-left {
             flex: 1;
-            background: var(--pine);
+            background: var(--theme-color);
             color: #fff;
             padding: 56px 48px;
             display: flex;
@@ -60,7 +63,7 @@
             right: -50px;
             width: 300px;
             height: 300px;
-            background: radial-gradient(circle, rgba(201, 130, 30, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
             border-radius: 50%;
         }
 
@@ -94,7 +97,7 @@
         .brand-sub {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 10px;
-            color: #a0b5ae;
+            color: rgba(255,255,255,0.7);
             letter-spacing: 0.05em;
             margin-top: 4px;
         }
@@ -110,7 +113,7 @@
         }
 
         .auth-left p {
-            color: #a0b5ae;
+            color: rgba(255,255,255,0.85);
             font-size: 15px;
             line-height: 1.6;
             margin: 0;
@@ -139,7 +142,7 @@
 
         .stat-label {
             font-size: 10px;
-            color: #a0b5ae;
+            color: rgba(255,255,255,0.7);
             letter-spacing: 0.05em;
             text-transform: uppercase;
         }
@@ -172,7 +175,7 @@
             background: var(--paper);
             padding: 4px;
             border-radius: 12px;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
         }
 
         .auth-tab {
@@ -193,8 +196,10 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         }
 
+
+
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .form-label {
@@ -218,13 +223,13 @@
 
         .form-control:focus {
             outline: none;
-            border-color: var(--pine);
-            box-shadow: 0 0 0 3px #e4f0ea;
+            border-color: var(--theme-color);
+            box-shadow: 0 0 0 3px var(--theme-bg);
         }
 
         .btn-primary {
             width: 100%;
-            background: var(--pine);
+            background: var(--theme-color);
             color: #fff;
             border: none;
             padding: 16px;
@@ -237,7 +242,7 @@
         }
 
         .btn-primary:hover {
-            background: var(--pine-light);
+            background: var(--theme-light);
         }
 
         .auth-footer-text {
@@ -287,8 +292,8 @@
                     <span class="brand-sub">GATE & SHIFT SYSTEM</span>
                 </div>
             </div>
-            <h1>Satu gerbang, satu sumber kebenaran.</h1>
-            <p>Izin keluar siswa terverifikasi guru, terpantau satpam secara real-time — dan jadwal jaga yang tidak lagi bentrok di kertas.</p>
+            <h1>Pantau gerbang dengan akurat.</h1>
+            <p>Lihat daftar siswa yang disetujui untuk keluar dan catat waktu kembali mereka dalam satu layar praktis.</p>
             
             <div class="auth-stats">
                 <div class="stat-item">
@@ -309,9 +314,11 @@
             <a href="/" class="back-link">← Kembali ke beranda</a>
             
             <div class="auth-tabs">
-                <a href="{{ route('admin.login') }}" class="auth-tab active">Masuk</a>
-                <a href="{{ route('admin.register') }}" class="auth-tab">Daftar</a>
+                <a href="{{ url('/login/satpam') }}" class="auth-tab active">Masuk</a>
+                <a href="{{ url('/register/satpam') }}" class="auth-tab">Daftar</a>
             </div>
+
+
 
             @if ($errors->any())
                 <div class="alert-error">
@@ -324,11 +331,11 @@
                 </div>
             @endif
             
-            <form method="POST" action="{{ route('admin.login') }}">
+            <form method="POST" action="{{ url('/login/satpam') }}">
                 @csrf
                 <div class="form-group">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required autofocus placeholder="ahmad.fauzan@sekolah.sch.id">
+                    <label for="email" class="form-label">Email / NIP</label>
+                    <input type="text" class="form-control" id="email" name="email" value="{{ old('email') }}" required autofocus placeholder="Masukkan NIP atau Email Anda">
                 </div>
                 <div class="form-group" style="margin-bottom: 16px;">
                     <label for="password" class="form-label">Kata sandi</label>
@@ -336,7 +343,7 @@
                 </div>
                 
                 <div class="form-group" style="display: flex; gap: 8px; align-items: center; margin-bottom: 32px;">
-                    <input type="checkbox" id="remember" name="remember" style="width: 16px; height: 16px; accent-color: var(--pine);">
+                    <input type="checkbox" id="remember" name="remember" style="width: 16px; height: 16px; accent-color: var(--theme-color);">
                     <label for="remember" style="font-size: 13px; font-weight: 500; color: var(--ink-soft); cursor: pointer; margin: 0;">Ingat saya</label>
                 </div>
 

@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar — SIGAP</title>
+    <title>Masuk Siswa — SIGAP</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
         :root {
-            --pine: #153f37;
-            --pine-light: #1e5a4d;
+            --theme-color: #ae4e37;
+            --theme-light: #c25c43;
+            --theme-bg: #f8e7e2;
+            
             --amber: #c9821e;
             --ink: #182421;
             --ink-soft: #4b5b56;
@@ -45,7 +47,7 @@
 
         .auth-left {
             flex: 1;
-            background: var(--pine);
+            background: var(--theme-color);
             color: #fff;
             padding: 56px 48px;
             display: flex;
@@ -60,7 +62,7 @@
             right: -50px;
             width: 300px;
             height: 300px;
-            background: radial-gradient(circle, rgba(201, 130, 30, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
             border-radius: 50%;
         }
 
@@ -94,7 +96,7 @@
         .brand-sub {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 10px;
-            color: #a0b5ae;
+            color: rgba(255,255,255,0.7);
             letter-spacing: 0.05em;
             margin-top: 4px;
         }
@@ -110,7 +112,7 @@
         }
 
         .auth-left p {
-            color: #a0b5ae;
+            color: rgba(255,255,255,0.85);
             font-size: 15px;
             line-height: 1.6;
             margin: 0;
@@ -139,7 +141,7 @@
 
         .stat-label {
             font-size: 10px;
-            color: #a0b5ae;
+            color: rgba(255,255,255,0.7);
             letter-spacing: 0.05em;
             text-transform: uppercase;
         }
@@ -172,7 +174,7 @@
             background: var(--paper);
             padding: 4px;
             border-radius: 12px;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
         }
 
         .auth-tab {
@@ -193,19 +195,10 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
+
 
         .form-group {
-            margin-bottom: 24px;
-        }
-
-        .form-row .form-group {
-            margin-bottom: 0;
+            margin-bottom: 20px;
         }
 
         .form-label {
@@ -219,7 +212,7 @@
         .form-control {
             width: 100%;
             padding: 14px 16px;
-            border: 1px solid var(--line);
+            border: 1.5px solid var(--line);
             border-radius: 10px;
             font-family: inherit;
             font-size: 14px;
@@ -229,13 +222,13 @@
 
         .form-control:focus {
             outline: none;
-            border-color: var(--pine);
-            box-shadow: 0 0 0 3px #e4f0ea;
+            border-color: var(--theme-color);
+            box-shadow: 0 0 0 3px var(--theme-bg);
         }
 
         .btn-primary {
             width: 100%;
-            background: var(--pine);
+            background: var(--theme-color);
             color: #fff;
             border: none;
             padding: 16px;
@@ -248,7 +241,14 @@
         }
 
         .btn-primary:hover {
-            background: var(--pine-light);
+            background: var(--theme-light);
+        }
+
+        .auth-footer-text {
+            margin-top: 24px;
+            font-size: 12px;
+            color: var(--ink-soft);
+            line-height: 1.5;
         }
 
         .alert-error {
@@ -279,12 +279,6 @@
                 margin-bottom: 40px;
             }
         }
-        
-        @media (max-width: 500px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 <body>
@@ -297,8 +291,8 @@
                     <span class="brand-sub">GATE & SHIFT SYSTEM</span>
                 </div>
             </div>
-            <h1>Satu gerbang, satu sumber kebenaran.</h1>
-            <p>Izin keluar siswa terverifikasi guru, terpantau satpam secara real-time — dan jadwal jaga yang tidak lagi bentrok di kertas.</p>
+            <h1>Ajukan izin keluar tanpa ribet.</h1>
+            <p>Isi alasan, lampirkan pesan orang tua sebagai bukti, dan pantau status persetujuan dari guru piket secara real-time.</p>
             
             <div class="auth-stats">
                 <div class="stat-item">
@@ -319,9 +313,11 @@
             <a href="/" class="back-link">← Kembali ke beranda</a>
             
             <div class="auth-tabs">
-                <a href="{{ route('admin.login') }}" class="auth-tab">Masuk</a>
-                <a href="{{ route('admin.register') }}" class="auth-tab active">Daftar</a>
+                <a href="{{ url('/login/siswa') }}" class="auth-tab active">Masuk</a>
+                <a href="{{ url('/register/siswa') }}" class="auth-tab">Daftar</a>
             </div>
+
+
 
             @if ($errors->any())
                 <div class="alert-error">
@@ -334,29 +330,28 @@
                 </div>
             @endif
             
-            <form method="POST" action="{{ route('admin.register') }}">
+            <form method="POST" action="{{ url('/login/siswa') }}">
                 @csrf
                 <div class="form-group">
-                    <label for="name" class="form-label">Nama Lengkap</label>
-                    <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required autofocus placeholder="Masukkan nama Anda">
+                    <label for="email" class="form-label">Email / NIS</label>
+                    <input type="text" class="form-control" id="email" name="email" value="{{ old('email') }}" required autofocus placeholder="Masukkan NIS atau Email Anda">
                 </div>
-                <div class="form-group">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required placeholder="nama@sekolah.sch.id">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="password" class="form-label">Kata sandi</label>
+                    <input type="password" class="form-control" id="password" name="password" required placeholder="••••••••">
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="password" class="form-label">Kata sandi</label>
-                        <input type="password" class="form-control" id="password" name="password" required placeholder="••••••••">
-                    </div>
-                    <div class="form-group">
-                        <label for="password_confirmation" class="form-label">Konfirmasi</label>
-                        <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required placeholder="••••••••">
-                    </div>
+                
+                <div class="form-group" style="display: flex; gap: 8px; align-items: center; margin-bottom: 32px;">
+                    <input type="checkbox" id="remember" name="remember" style="width: 16px; height: 16px; accent-color: var(--theme-color);">
+                    <label for="remember" style="font-size: 13px; font-weight: 500; color: var(--ink-soft); cursor: pointer; margin: 0;">Ingat saya</label>
                 </div>
 
-                <button type="submit" class="btn-primary" style="margin-top: 8px;">Daftar Akun</button>
+                <button type="submit" class="btn-primary">Masuk ke SIGAP</button>
             </form>
+
+            <div class="auth-footer-text">
+                Prototipe demo — isian sudah diisi contoh, langsung klik "Masuk ke SIGAP".
+            </div>
         </div>
     </div>
 </body>

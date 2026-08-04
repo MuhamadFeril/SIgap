@@ -12,31 +12,35 @@ class AuthController extends Controller
 {
     public function showRegistrationForm()
     {
-        return view('admin.auth.register');
+        return view('admin.auth_admin.registeradmin');
     }
 
     public function register(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
             'name' => $request->name,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'admin',
+            'status' => 'aktif',
         ]);
 
-        Auth::login($user);
+        Auth::guard('admin')->login($user);
 
         return redirect()->route('admin.dashboard');
     }
 
     public function showLoginForm()
     {
-        return view('admin.auth.login');
+        return view('admin.auth_admin.loginadmin');
     }
 
     public function login(Request $request)
@@ -46,10 +50,10 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials)) {
+        if (Auth::guard('admin')->attempt($credentials)) {
             $request->session()->regenerate();
 
-            return redirect()->intended('admin/dashboard');
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         return back()->withErrors([
@@ -59,13 +63,13 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::guard('admin')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('admin.login');
     }
 }
 
