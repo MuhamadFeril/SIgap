@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
+
+class RedirectIfAuthenticated
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  string|null  ...$guards
+     */
+    public function handle(Request $request, Closure $next, string ...$guards): Response
+    {
+        $guards = empty($guards) ? [null] : $guards;
+
+        foreach ($guards as $guard) {
+            if (Auth::guard($guard)->check()) {
+                $user = Auth::user();
+                
+                // Redirect based on role
+                return match($user->role) {
+                    'admin' => redirect()->route('admin.dashboard'),
+                    'guru' => redirect()->route('guru.dashboard'),
+                    'siswa' => redirect()->route('siswa.dashboard'),
+                    'satpam' => redirect()->route('satpam.dashboard'),
+                    'user' => redirect()->route('user.dashboard'),
+                    default => redirect('/'),
+                };
+            }
+        }
+
+        return $next($request);
+    }
+}
