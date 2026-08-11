@@ -790,7 +790,7 @@ body.landing {
         <a href="#lp-caranya">Cara kerja</a>
         <a href="#lp-fitur">Fitur</a>
     </div>
-    <a href="{{ route('admin.login') }}" class="lp-nav-cta">Masuk</a>
+    <a href="{{ route('login') }}" class="lp-nav-cta">Masuk</a>
 </nav>
 
 <section class="lp-hero">
@@ -799,7 +799,7 @@ body.landing {
         <h1>Satu gerbang,<br>satu <span class="accent">sumber kebenaran.</span></h1>
         <p class="lead">SIGAP mengganti izin keluar lisan dan jadwal jaga di kertas dengan satu sistem digital — supaya siswa tidak bisa berbohong soal alasan keluar, dan satpam tidak lagi kewalahan dengan jadwal yang bentrok.</p>
         <div class="lp-cta-row">
-            <a href="{{ route('admin.login') }}" class="lp-btn-primary">Coba demo SIGAP</a>
+            <a href="{{ route('login') }}" class="lp-btn-primary">Coba demo SIGAP</a>
             <a href="#lp-masalah" class="lp-btn-secondary">Lihat masalahnya</a>
         </div>
         <div class="lp-trust">
@@ -954,8 +954,8 @@ body.landing {
     <h2>Siap coba SIGAP?</h2>
     <p>Masuk ke demo dan jelajahi keempat dashboard-nya langsung.</p>
     <div class="lp-cta-row">
-        <a href="{{ route('admin.login') }}" class="lp-btn-primary">Coba demo SIGAP</a>
-        <a href="{{ route('admin.register') }}" class="lp-btn-secondary">Daftar akun</a>
+        <a href="{{ route('login') }}" class="lp-btn-primary">Coba demo SIGAP</a>
+        <a href="{{ route('register') }}" class="lp-btn-secondary">Daftar akun</a>
     </div>
 </div>
 

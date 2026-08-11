@@ -19,6 +19,12 @@
             --terracotta: #ae4e37;
         }
 
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -339,10 +345,6 @@
                 <div class="form-group">
                     <label for="name" class="form-label">Nama Lengkap</label>
                     <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required autofocus placeholder="Masukkan nama Anda">
-                </div>
-                <div class="form-group">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" value="{{ old('username') }}" required placeholder="Masukkan username">
                 </div>
                 <div class="form-group">
                     <label for="email" class="form-label">Email</label>

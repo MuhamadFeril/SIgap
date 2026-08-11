@@ -46,6 +46,18 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'siswa' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'guru' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'satpam' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
     ],
 
     /*

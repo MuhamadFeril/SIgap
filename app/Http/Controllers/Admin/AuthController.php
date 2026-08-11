@@ -19,23 +19,21 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
             'name' => $request->name,
-            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'admin',
+            'role' => 'user',
             'status' => 'aktif',
         ]);
 
-        Auth::guard('admin')->login($user);
+        Auth::login($user);
 
-        return redirect()->route('admin.dashboard');
+        return redirect()->route('landing');
     }
 
     public function showLoginForm()
@@ -50,7 +48,16 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::guard('admin')->attempt($credentials)) {
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            
+            if ($user->role !== 'admin') {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Anda tidak memiliki akses sebagai admin.',
+                ]);
+            }
+
             $request->session()->regenerate();
 
             return redirect()->intended(route('admin.dashboard'));
@@ -63,7 +70,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::guard('admin')->logout();
+        Auth::logout();
 
         $request->session()->invalidate();
 
@@ -72,4 +79,3 @@ class AuthController extends Controller
         return redirect()->route('admin.login');
     }
 }
-

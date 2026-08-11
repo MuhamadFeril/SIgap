@@ -282,18 +282,18 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="bi bi-person-badge"></i> Izin Keluar
+                        <a class="nav-link" href="{{ route('admin.guru.index') }}">
+                            <i class="bi bi-person-badge"></i> Guru
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{{ route('admin.siswa.index') }}">
+                            <i class="bi bi-people"></i> Siswa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.satpam.index') }}">
                             <i class="bi bi-shield-check"></i> Satpam
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="bi bi-calendar-check"></i> Jadwal Jaga
                         </a>
                     </li>
                 </ul>
@@ -310,10 +310,9 @@
                     <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
                         @csrf
                     </form>
-                    <a href="{{ route('admin.logout') }}" class="btn btn-logout"
-                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        <i class="bi bi-box-arrow-right"></i> Logout
-                    </a>
+                    <button type="submit" form="logout-form" class="btn btn-logout">
+                        <i class="bi bi-box-arrow-right"></i> Keluar
+                    </button>
                 </div>
             </div>
         </div>
@@ -330,33 +329,21 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('admin.guru.index') }}">
                             <i class="bi bi-person-badge"></i>
-                            Izin Keluar
+                            Guru
                         </a>
                     </li>
                     <li>
-                        <a href="#">
-                            <i class="bi bi-shield-check"></i>
-                            Satpam
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="bi bi-calendar-check"></i>
-                            Jadwal Jaga
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
+                        <a href="{{ route('admin.siswa.index') }}">
                             <i class="bi bi-people"></i>
                             Siswa
                         </a>
                     </li>
                     <li>
-                        <a href="#">
-                            <i class="bi bi-person-gear"></i>
-                            Guru
+                        <a href="{{ route('admin.satpam.index') }}">
+                            <i class="bi bi-shield-check"></i>
+                            Satpam
                         </a>
                     </li>
                     <li>
@@ -383,45 +370,45 @@
                             <div class="stat-icon primary">
                                 <i class="bi bi-person-badge"></i>
                             </div>
-                            <div class="stat-value">12</div>
-                            <div class="stat-label">Izin Aktif Hari Ini</div>
+                            <div class="stat-value">{{ $totalGuru }}</div>
+                            <div class="stat-label">Total Guru</div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="stat-card">
                             <div class="stat-icon amber">
-                                <i class="bi bi-clock-history"></i>
+                                <i class="bi bi-people"></i>
                             </div>
-                            <div class="stat-value">5</div>
-                            <div class="stat-label">Menunggu Persetujuan</div>
+                            <div class="stat-value">{{ $totalSiswa }}</div>
+                            <div class="stat-label">Total Siswa</div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="stat-card">
                             <div class="stat-icon terracotta">
-                                <i class="bi bi-exclamation-triangle"></i>
+                                <i class="bi bi-shield-check"></i>
                             </div>
-                            <div class="stat-value">2</div>
-                            <div class="stat-label">Terlambat Kembali</div>
+                            <div class="stat-value">{{ $totalSatpam }}</div>
+                            <div class="stat-label">Total Satpam</div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="stat-card">
                             <div class="stat-icon blue">
-                                <i class="bi bi-shield-check"></i>
+                                <i class="bi bi-person-check-fill"></i>
                             </div>
-                            <div class="stat-value">3</div>
-                            <div class="stat-label">Satpam Bertugas</div>
+                            <div class="stat-value">{{ $satpamAktif }}</div>
+                            <div class="stat-label">Satpam Aktif</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-md-8">
+                    <div class="col-md-6">
                         <div class="content-card mb-4">
                             <div class="content-card-header">
-                                <h5>Izin Keluar Terbaru</h5>
-                                <a href="#" style="color: var(--theme-color); text-decoration: none; font-weight: 500;">
+                                <h5>Guru Terbaru</h5>
+                                <a href="{{ route('admin.guru.index') }}" style="color: var(--theme-color); text-decoration: none; font-weight: 500;">
                                     Lihat Semua <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
@@ -429,78 +416,111 @@
                                 <table class="table">
                                     <thead>
                                         <tr>
-                                            <th>Siswa</th>
-                                            <th>Alasan</th>
-                                            <th>Waktu Keluar</th>
+                                            <th>Nama</th>
+                                            <th>Mata Pelajaran</th>
                                             <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>Ahmad Rizky</td>
-                                            <td>Sakit</td>
-                                            <td>08:30</td>
-                                            <td><span class="badge badge-success">Disetujui</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Siti Nurhaliza</td>
-                                            <td>Urusan Keluarga</td>
-                                            <td>09:15</td>
-                                            <td><span class="badge badge-warning">Menunggu</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Budi Santoso</td>
-                                            <td>Kompetisi</td>
-                                            <td>07:00</td>
-                                            <td><span class="badge badge-success">Disetujui</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Dewi Lestari</td>
-                                            <td>Sakit</td>
-                                            <td>10:00</td>
-                                            <td><span class="badge badge-danger">Terlambat</span></td>
-                                        </tr>
+                                        @php
+                                            $recentGuru = \App\Models\Guru::with('user')->latest()->take(5)->get();
+                                        @endphp
+                                        @foreach($recentGuru as $guru)
+                                            <tr>
+                                                <td>{{ $guru->user->name }}</td>
+                                                <td>{{ $guru->mapel }}</td>
+                                                <td>
+                                                    @if($guru->user->status == 'aktif')
+                                                        <span class="badge badge-success">Aktif</span>
+                                                    @else
+                                                        <span class="badge badge-danger">Nonaktif</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="content-card">
+                    <div class="col-md-6">
+                        <div class="content-card mb-4">
                             <div class="content-card-header">
-                                <h5>Jadwal Satpam Hari Ini</h5>
+                                <h5>Siswa Terbaru</h5>
+                                <a href="{{ route('admin.siswa.index') }}" style="color: var(--theme-color); text-decoration: none; font-weight: 500;">
+                                    Lihat Semua <i class="bi bi-arrow-right"></i>
+                                </a>
                             </div>
-                            <div class="content-card-body">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="user-avatar" style="background: var(--amber);">
-                                        BS
-                                    </div>
-                                    <div>
-                                        <div style="font-weight: 600;">Budi Supriyanto</div>
-                                        <div style="font-size: 12px; color: var(--ink-soft);">Pagi (07:00 - 15:00)</div>
-                                    </div>
-                                    <span class="badge badge-success ms-auto">Aktif</span>
-                                </div>
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="user-avatar" style="background: var(--theme-color);">
-                                        AH
-                                    </div>
-                                    <div>
-                                        <div style="font-weight: 600;">Agus Hartono</div>
-                                        <div style="font-size: 12px; color: var(--ink-soft);">Siang (15:00 - 23:00)</div>
-                                    </div>
-                                    <span class="badge badge-warning ms-auto">Menunggu</span>
-                                </div>
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="user-avatar" style="background: var(--terracotta);">
-                                        DI
-                                    </div>
-                                    <div>
-                                        <div style="font-weight: 600;">Dedi Irawan</div>
-                                        <div style="font-size: 12px; color: var(--ink-soft);">Malam (23:00 - 07:00)</div>
-                                    </div>
-                                    <span class="badge badge-warning ms-auto">Menunggu</span>
-                                </div>
+                            <div class="content-card-body p-0">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama</th>
+                                            <th>Kelas</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php
+                                            $recentSiswa = \App\Models\Siswa::with('user')->latest()->take(5)->get();
+                                        @endphp
+                                        @foreach($recentSiswa as $siswa)
+                                            <tr>
+                                                <td>{{ $siswa->user->name }}</td>
+                                                <td>{{ $siswa->kelas }}</td>
+                                                <td>
+                                                    @if($siswa->user->status == 'aktif')
+                                                        <span class="badge badge-success">Aktif</span>
+                                                    @else
+                                                        <span class="badge badge-danger">Nonaktif</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="content-card mb-4">
+                            <div class="content-card-header">
+                                <h5>Satpam Terbaru</h5>
+                                <a href="{{ route('admin.satpam.index') }}" style="color: var(--theme-color); text-decoration: none; font-weight: 500;">
+                                    Lihat Semua <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                            <div class="content-card-body p-0">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama</th>
+                                            <th>NIP</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php
+                                            $recentSatpam = \App\Models\Satpam::with('user')->latest()->take(5)->get();
+                                        @endphp
+                                        @foreach($recentSatpam as $satpam)
+                                            <tr>
+                                                <td>{{ $satpam->user->name }}</td>
+                                                <td>{{ $satpam->nip }}</td>
+                                                <td>
+                                                    @if($satpam->user->status == 'aktif')
+                                                        <span class="badge badge-success">Aktif</span>
+                                                    @else
+                                                        <span class="badge badge-danger">Nonaktif</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
