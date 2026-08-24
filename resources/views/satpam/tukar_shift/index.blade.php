@@ -299,13 +299,19 @@
                 </div>
             </div>
             <div class="content-card-body">
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+
                 <div class="filter-row">
                     <select class="form-select" style="width: auto;" id="statusFilter" onchange="filterTable()">
                         <option value="">Semua Status</option>
                         <option value="pending">Menunggu</option>
                         <option value="approved">Disetujui</option>
                         <option value="rejected">Ditolak</option>
-                        <option value="cancelled">Dibatalkan</option>
                     </select>
                 </div>
 
@@ -316,8 +322,6 @@
                                 <th>Tanggal</th>
                                 <th>Shift Saya</th>
                                 <th>Tukar Dengan</th>
-                                <th>Shift Target</th>
-                                <th>Tujuan</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
@@ -326,26 +330,18 @@
                             @forelse($tukarShifts as $tukar)
                                 <tr data-status="{{ $tukar->status }}">
                                     <td>
-                                        <strong>{{ \Carbon\Carbon::parse($tukar->tanggal)->locale('id')->translatedFormat('d M Y') }}</strong>
+                                        <strong>{{ $tukar->jadwal?->tanggal?->locale('id')->translatedFormat('d M Y') ?? '-' }}</strong>
                                     </td>
                                     <td>
-                                        {{ $tukar->shift_asal }}
-                                        <br>
-                                        <small class="text-muted">{{ $tukar->jam_asal }}</small>
+                                        {{ ucfirst($tukar->jadwal?->shift ?? '-') }}
                                     </td>
                                     <td>
-                                        @if($tukar->satpamTarget)
-                                            <strong>{{ $tukar->satpamTarget->user->name }}</strong>
+                                        @if($tukar->penerima)
+                                            <strong>{{ $tukar->penerima->user?->name ?? '-' }}</strong>
                                         @else
                                             <span class="text-muted">Belum dipilih</span>
                                         @endif
                                     </td>
-                                    <td>
-                                        {{ $tukar->shift_target }}
-                                        <br>
-                                        <small class="text-muted">{{ $tukar->jam_target }}</small>
-                                    </td>
-                                    <td>{{ \Str::limit($tukar->alasan, 30) }}</td>
                                     <td>
                                         @if($tukar->status === 'pending')
                                             <span class="badge badge-warning">Menunggu</span>
@@ -353,8 +349,6 @@
                                             <span class="badge badge-success">Disetujui</span>
                                         @elseif($tukar->status === 'rejected')
                                             <span class="badge badge-danger">Ditolak</span>
-                                        @elseif($tukar->status === 'cancelled')
-                                            <span class="badge badge-secondary">Dibatalkan</span>
                                         @else
                                             <span class="badge badge-info">{{ ucfirst($tukar->status) }}</span>
                                         @endif
@@ -378,7 +372,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-4">
+                                    <td colspan="5" class="text-center py-4">
                                         <i class="bi bi-inbox" style="font-size: 32px; color: var(--ink-soft);"></i>
                                         <p class="mt-2 mb-0 text-muted">Belum ada permintaan tukar shift</p>
                                         <a href="{{ route('satpam.tukar_shift.create') }}" class="btn btn-primary btn-sm mt-2">

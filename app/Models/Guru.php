@@ -29,11 +29,11 @@ class Guru extends Model
 
     public function izinKeluarDisetujui()
     {
-        return $this->hasMany(IzinKeluar::class, 'disetujui_oleh');
+        return $this->hasMany(IzinKeluar::class, 'disetujui_oleh', 'user_id');
     }
 
     public function tukarShiftDisetujui()
     {
-        return $this->hasMany(TukarShift::class, 'disetujui_oleh');
+        return $this->hasMany(TukarShift::class, 'disetujui_oleh', 'user_id');
     }
 }

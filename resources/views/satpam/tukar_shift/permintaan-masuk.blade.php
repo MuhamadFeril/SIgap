@@ -326,21 +326,28 @@
                 </div>
             </div>
             <div class="content-card-body">
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+
                 <div class="stats-row">
                     <div class="stat-item">
-                        <div class="stat-value">{{ $permintaanMasuk->where('status', 'pending')->count() }}</div>
+                        <div class="stat-value">{{ $statusCounts['pending'] ?? 0 }}</div>
                         <div class="stat-label">Menunggu</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">{{ $permintaanMasuk->where('status', 'approved')->count() }}</div>
+                        <div class="stat-value">{{ $statusCounts['approved'] ?? 0 }}</div>
                         <div class="stat-label">Disetujui</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">{{ $permintaanMasuk->where('status', 'rejected')->count() }}</div>
+                        <div class="stat-value">{{ $statusCounts['rejected'] ?? 0 }}</div>
                         <div class="stat-label">Ditolak</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">{{ $permintaanMasuk->count() }}</div>
+                        <div class="stat-value">{{ $permintaanMasuk->total() }}</div>
                         <div class="stat-label">Total</div>
                     </div>
                 </div>
@@ -360,9 +367,7 @@
                             <tr>
                                 <th>Dari</th>
                                 <th>Tanggal</th>
-                                <th>Shift Pengirim</th>
-                                <th>Shift Anda</th>
-                                <th>Alasan</th>
+                                <th>Shift</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
@@ -371,22 +376,14 @@
                             @forelse($permintaanMasuk as $tukar)
                                 <tr data-status="{{ $tukar->status }}">
                                     <td>
-                                        <strong>{{ $tukar->satpam->user->name }}</strong>
+                                        <strong>{{ $tukar->pengaju?->user?->name ?? '-' }}</strong>
                                     </td>
                                     <td>
-                                        {{ \Carbon\Carbon::parse($tukar->tanggal)->locale('id')->translatedFormat('d M Y') }}
+                                        {{ $tukar->jadwal?->tanggal?->locale('id')->translatedFormat('d M Y') ?? '-' }}
                                     </td>
                                     <td>
-                                        {{ ucfirst($tukar->shift_asal) }}
-                                        <br>
-                                        <small class="text-muted">{{ $tukar->jam_asal }}</small>
+                                        {{ ucfirst($tukar->jadwal?->shift ?? '-') }}
                                     </td>
-                                    <td>
-                                        {{ ucfirst($tukar->shift_target) }}
-                                        <br>
-                                        <small class="text-muted">{{ $tukar->jam_target }}</small>
-                                    </td>
-                                    <td>{{ \Str::limit($tukar->alasan, 30) }}</td>
                                     <td>
                                         @if($tukar->status === 'pending')
                                             <span class="badge badge-warning">Menunggu</span>
@@ -404,12 +401,23 @@
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                             @if($tukar->status === 'pending')
-                                                <form action="{{ route('satpam.tukar_shift.approve', $tukar) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-success" onclick="return confirm('Setujui permintaan tukar shift ini?')">
-                                                        <i class="bi bi-check"></i>
-                                                    </button>
-                                                </form>
+                                                @php($jadwalSaya = $tukar->penerima->jadwalSatpam->where('tanggal', '>=', \Carbon\Carbon::today())->sortBy('tanggal'))
+                                                @if($jadwalSaya->isNotEmpty())
+                                                    <form action="{{ route('satpam.tukar_shift.approve', $tukar) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        <select name="jadwal_penerima_id" class="form-select form-select-sm d-inline-block align-middle" style="width:auto;" required title="Pilih jadwal Anda yang diberikan balik">
+                                                            <option value="">Jadwal tukar balik</option>
+                                                            @foreach($jadwalSaya as $js)
+                                                                <option value="{{ $js->id }}">{{ $js->tanggal?->locale('id')->translatedFormat('d M Y') }} — {{ ucfirst($js->shift) }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <button type="submit" class="btn btn-success" onclick="return confirm('Setujui dan tukar shift ini?')">
+                                                            <i class="bi bi-check"></i>
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <span class="text-muted small">Tidak ada jadwal untuk ditukar</span>
+                                                @endif
                                                 <form action="{{ route('satpam.tukar_shift.reject', $tukar) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-danger" onclick="return confirm('Tolak permintaan tukar shift ini?')">
@@ -422,7 +430,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-4">
+                                    <td colspan="5" class="text-center py-4">
                                         <i class="bi bi-inbox" style="font-size: 32px; color: var(--ink-soft);"></i>
                                         <p class="mt-2 mb-0 text-muted">Tidak ada permintaan masuk</p>
                                     </td>

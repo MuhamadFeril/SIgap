@@ -27,11 +27,11 @@ class DashboardController extends Controller
                 ]);
             }
 
-            // Izin keluar yang perlu ditandai keluar
+            // Izin keluar yang perlu ditandai keluar (semua yang sudah disetujui
+            // dan belum dicatat keluar, terlepas dari tanggal pengajuan)
             $izinMenungguKeluar = IzinKeluar::with('siswa.user')
                 ->where('status', 'approved')
                 ->whereNull('jam_keluar_aktual')
-                ->whereDate('created_at', today())
                 ->count();
 
             // Siswa yang sedang keluar

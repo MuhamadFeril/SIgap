@@ -352,7 +352,7 @@
                                             -
                                         @endif
                                     </td>
-                                    <td>{{ $jadwal->jam_masuk }} - {{ $jadwal->jam_pulang }}</td>
+                                    <td>{{ $jadwal->jam_masuk?->format('H:i') ?? '-' }} - {{ $jadwal->jam_pulang?->format('H:i') ?? '-' }}</td>
                                     <td>
                                         @if($jadwal->waktu_masuk)
                                             <span class="text-success">{{ $jadwal->waktu_masuk->format('H:i') }}</span>

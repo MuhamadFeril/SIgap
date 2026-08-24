@@ -8,23 +8,52 @@ use Illuminate\Http\Request;
 
 class IzinKeluarController extends Controller
 {
+    private function currentSiswa()
+    {
+        return auth()->user()?->siswa;
+    }
+
+    private function missingSiswaRedirect()
+    {
+        return redirect()
+            ->route('siswa.dashboard')
+            ->with('error', 'Profil siswa akun ini belum terhubung. Silakan hubungi admin.');
+    }
+
     public function index()
     {
-        $siswa = auth()->user()->siswa;
+        $siswa = $this->currentSiswa();
+
+        if (!$siswa) {
+            return $this->missingSiswaRedirect();
+        }
+
         $izinKeluar = IzinKeluar::where('siswa_id', $siswa->id)
             ->latest()
             ->get();
 
-        return view('siswa.izin_keluar.index', compact('izinKeluar'));
+        return view('siswa.izin_keluar.index', compact('izinKeluar', 'siswa'));
     }
 
     public function create()
     {
-        return view('siswa.izin_keluar.create');
+        $siswa = $this->currentSiswa();
+
+        if (!$siswa) {
+            return $this->missingSiswaRedirect();
+        }
+
+        return view('siswa.izin_keluar.create', compact('siswa'));
     }
 
     public function store(Request $request)
     {
+        $siswa = $this->currentSiswa();
+
+        if (!$siswa) {
+            return $this->missingSiswaRedirect();
+        }
+
         $request->validate([
             'alasan' => 'required|string|max:100',
             'deskripsi' => 'nullable|string',
@@ -32,7 +61,6 @@ class IzinKeluarController extends Controller
             'jam_keluar_rencana' => 'required|date_format:H:i',
         ]);
 
-        $siswa = auth()->user()->siswa;
         $buktiPath = null;
 
         if ($request->hasFile('bukti')) {
@@ -53,18 +81,30 @@ class IzinKeluarController extends Controller
 
     public function show(IzinKeluar $izinKeluar)
     {
+        $siswa = $this->currentSiswa();
+
+        if (!$siswa) {
+            return $this->missingSiswaRedirect();
+        }
+
         $izinKeluar->load('siswa.user', 'disetujuiOleh', 'dicatatKeluarOleh', 'dicatatKembaliOleh');
         
-        if ($izinKeluar->siswa_id !== auth()->user()->siswa->id) {
+        if ($izinKeluar->siswa_id !== $siswa->id) {
             abort(403);
         }
 
-        return view('siswa.izin_keluar.show', compact('izinKeluar'));
+        return view('siswa.izin_keluar.show', compact('izinKeluar', 'siswa'));
     }
 
     public function destroy(IzinKeluar $izinKeluar)
     {
-        if ($izinKeluar->siswa_id !== auth()->user()->siswa->id) {
+        $siswa = $this->currentSiswa();
+
+        if (!$siswa) {
+            return $this->missingSiswaRedirect();
+        }
+
+        if ($izinKeluar->siswa_id !== $siswa->id) {
             abort(403);
         }
 

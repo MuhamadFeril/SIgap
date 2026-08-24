@@ -274,6 +274,12 @@
                                 </ul>
                             </div>
                         @endif
+                        @if (session('error'))
+                            <div class="alert alert-danger">{{ session('error') }}</div>
+                        @endif
+                        @if (session('success'))
+                            <div class="alert alert-success">{{ session('success') }}</div>
+                        @endif
 
                         <div class="shift-info">
                             <h6><i class="bi bi-info-circle"></i> Informasi</h6>
@@ -284,62 +290,29 @@
                             @csrf
 
                             <div class="mb-4">
-                                <label for="tanggal" class="form-label">Tanggal <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="tanggal" name="tanggal" required value="{{ old('tanggal') }}">
-                                <div class="help-text">Pilih tanggal shift yang ingin ditukar</div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-4">
-                                    <label for="shift_asal" class="form-label">Shift Anda <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="shift_asal" name="shift_asal" required>
-                                        <option value="">Pilih Shift</option>
-                                        <option value="pagi" {{ old('shift_asal') === 'pagi' ? 'selected' : '' }}>Pagi (07:00 - 15:00)</option>
-                                        <option value="siang" {{ old('shift_asal') === 'siang' ? 'selected' : '' }}>Siang (15:00 - 23:00)</option>
-                                        <option value="malam" {{ old('shift_asal') === 'malam' ? 'selected' : '' }}>Malam (23:00 - 07:00)</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6 mb-4">
-                                    <label for="jam_asal" class="form-label">Jam Shift Anda <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="jam_asal" name="jam_asal" required placeholder="Contoh: 07:00 - 15:00" value="{{ old('jam_asal') }}">
-                                </div>
+                                <label for="jadwal_id" class="form-label">Jadwal Anda <span class="text-danger">*</span></label>
+                                <select class="form-select" id="jadwal_id" name="jadwal_id" required>
+                                    <option value="">Pilih jadwal yang ingin ditukar</option>
+                                    @foreach($jadwalSatpam as $jadwal)
+                                        <option value="{{ $jadwal->id }}" {{ old('jadwal_id') == $jadwal->id ? 'selected' : '' }}>
+                                            {{ $jadwal->tanggal->locale('id')->translatedFormat('l, d F Y') }} - {{ ucfirst($jadwal->shift) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="help-text">Hanya jadwal hari ini dan yang akan datang yang ditampilkan</div>
                             </div>
 
                             <div class="mb-4">
-                                <label for="satpam_target_id" class="form-label">Tukar Dengan <span class="text-danger">*</span></label>
-                                <select class="form-select" id="satpam_target_id" name="satpam_target_id" required>
+                                <label for="penerima_id" class="form-label">Tukar Dengan <span class="text-danger">*</span></label>
+                                <select class="form-select" id="penerima_id" name="penerima_id" required>
                                     <option value="">Pilih Satpam</option>
                                     @foreach($satpams as $satpam)
-                                        @if($satpam->id !== Auth::user()->satpam->id)
-                                            <option value="{{ $satpam->id }}" {{ old('satpam_target_id') == $satpam->id ? 'selected' : '' }}>
-                                                {{ $satpam->user->name }}
-                                            </option>
-                                        @endif
+                                        <option value="{{ $satpam->id }}" {{ old('penerima_id') == $satpam->id ? 'selected' : '' }}>
+                                            {{ $satpam->user->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 <div class="help-text">Pilih satpam yang ingin diajak tukar shift</div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-4">
-                                    <label for="shift_target" class="form-label">Shift Target <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="shift_target" name="shift_target" required>
-                                        <option value="">Pilih Shift</option>
-                                        <option value="pagi" {{ old('shift_target') === 'pagi' ? 'selected' : '' }}>Pagi (07:00 - 15:00)</option>
-                                        <option value="siang" {{ old('shift_target') === 'siang' ? 'selected' : '' }}>Siang (15:00 - 23:00)</option>
-                                        <option value="malam" {{ old('shift_target') === 'malam' ? 'selected' : '' }}>Malam (23:00 - 07:00)</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6 mb-4">
-                                    <label for="jam_target" class="form-label">Jam Shift Target <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="jam_target" name="jam_target" required placeholder="Contoh: 07:00 - 15:00" value="{{ old('jam_target') }}">
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="alasan" class="form-label">Alasan <span class="text-danger">*</span></label>
-                                <textarea class="form-control" id="alasan" name="alasan" rows="4" required placeholder="Jelaskan alasan Anda ingin menukar shift...">{{ old('alasan') }}</textarea>
-                                <div class="help-text">Jelaskan secara singkat dan jelas alasan tukar shift</div>
                             </div>
 
                             <div class="alert alert-info">
@@ -362,29 +335,5 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Set minimum date to today
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('tanggal').setAttribute('min', today);
-
-        // Auto-fill jam based on shift selection
-        document.getElementById('shift_asal').addEventListener('change', function() {
-            const jamMap = {
-                'pagi': '07:00 - 15:00',
-                'siang': '15:00 - 23:00',
-                'malam': '23:00 - 07:00'
-            };
-            document.getElementById('jam_asal').value = jamMap[this.value] || '';
-        });
-
-        document.getElementById('shift_target').addEventListener('change', function() {
-            const jamMap = {
-                'pagi': '07:00 - 15:00',
-                'siang': '15:00 - 23:00',
-                'malam': '23:00 - 07:00'
-            };
-            document.getElementById('jam_target').value = jamMap[this.value] || '';
-        });
-    </script>
 </body>
 </html>

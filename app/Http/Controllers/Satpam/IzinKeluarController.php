@@ -82,7 +82,9 @@ class IzinKeluarController extends Controller
             ->latest()
             ->get();
 
-        return view('satpam.izin_keluar.keluar_hari_ini', compact('izinKeluar'));
+        return view('satpam.izin_keluar.keluar-hari-ini', [
+            'izinKeluarHariIni' => $izinKeluar,
+        ]);
     }
 
     public function riwayat()

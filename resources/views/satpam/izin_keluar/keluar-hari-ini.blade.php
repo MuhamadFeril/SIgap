@@ -320,21 +320,28 @@
                 </div>
             </div>
             <div class="content-card-body">
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+
                 <div class="stats-row">
                     <div class="stat-item">
                         <div class="stat-value">{{ $izinKeluarHariIni->count() }}</div>
                         <div class="stat-label">Total Izin</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">{{ $izinKeluarHariIni->where('waktu_keluar_sebenarnya', null)->where('status', 'approved')->count() }}</div>
+                        <div class="stat-value">{{ $izinKeluarHariIni->where('jam_keluar_aktual', null)->where('status', 'approved')->count() }}</div>
                         <div class="stat-label">Belum Keluar</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">{{ $izinKeluarHariIni->where('waktu_keluar_sebenarnya', '!=', null)->where('waktu_kembali_sebenarnya', null)->count() }}</div>
+                        <div class="stat-value">{{ $izinKeluarHariIni->where('jam_keluar_aktual', '!=', null)->where('jam_kembali_aktual', null)->count() }}</div>
                         <div class="stat-label">Sedang Keluar</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">{{ $izinKeluarHariIni->where('waktu_kembali_sebenarnya', '!=', null)->count() }}</div>
+                        <div class="stat-value">{{ $izinKeluarHariIni->where('jam_kembali_aktual', '!=', null)->count() }}</div>
                         <div class="stat-label">Sudah Kembali</div>
                     </div>
                 </div>
@@ -350,9 +357,10 @@
                             <tr>
                                 <th>Siswa</th>
                                 <th>Kelas</th>
-                                <th>Waktu Keluar</th>
+                                <th>Rencana Keluar</th>
+                                <th>Aktual Keluar</th>
                                 <th>Waktu Kembali</th>
-                                <th>Tujuan</th>
+                                <th>Alasan</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
@@ -361,24 +369,23 @@
                             @forelse($izinKeluarHariIni as $izin)
                                 <tr>
                                     <td>
-                                        <strong>{{ $izin->siswa->user->name }}</strong>
+                                        <strong>{{ $izin->siswa?->user?->name ?? '-' }}</strong>
                                     </td>
-                                    <td>{{ $izin->siswa->kelas }}</td>
+                                    <td>{{ $izin->siswa?->kelas ?? '-' }}</td>
                                     <td>
-                                        {{ \Carbon\Carbon::parse($izin->tanggal_keluar)->locale('id')->translatedFormat('d M Y') }}
-                                        <br>
-                                        <small class="text-muted">{{ $izin->waktu_keluar ?? '-' }}</small>
+                                        {{ $izin->jam_keluar_rencana?->locale('id')->translatedFormat('d M Y H:i') ?? '-' }}
                                     </td>
                                     <td>
-                                        {{ \Carbon\Carbon::parse($izin->tanggal_kembali)->locale('id')->translatedFormat('d M Y') }}
-                                        <br>
-                                        <small class="text-muted">{{ $izin->waktu_kembali ?? '-' }}</small>
+                                        {{ $izin->jam_keluar_aktual?->locale('id')->translatedFormat('d M Y H:i') ?? '-' }}
                                     </td>
-                                    <td>{{ $izin->tujuan }}</td>
                                     <td>
-                                        @if(!$izin->waktu_keluar_sebenarnya && !$izin->waktu_kembali_sebenarnya)
+                                        {{ $izin->jam_kembali_aktual?->locale('id')->translatedFormat('d M Y H:i') ?? '-' }}
+                                    </td>
+                                    <td>{{ \Str::limit($izin->alasan ?? $izin->deskripsi, 30) }}</td>
+                                    <td>
+                                        @if(!$izin->jam_keluar_aktual && !$izin->jam_kembali_aktual)
                                             <span class="badge badge-warning">Belum Keluar</span>
-                                        @elseif($izin->waktu_keluar_sebenarnya && !$izin->waktu_kembali_sebenarnya)
+                                        @elseif($izin->jam_keluar_aktual && !$izin->jam_kembali_aktual)
                                             <span class="badge badge-info">Sedang Keluar</span>
                                         @else
                                             <span class="badge badge-success">Sudah Kembali</span>
@@ -386,14 +393,14 @@
                                     </td>
                                     <td>
                                         @if($izin->status === 'approved')
-                                            @if(!$izin->waktu_keluar_sebenarnya)
+                                            @if(!$izin->jam_keluar_aktual)
                                                 <form action="{{ route('satpam.izin_keluar.tandai_keluar', $izin) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Tandai siswa ini keluar?')">
                                                         <i class="bi bi-box-arrow-right"></i> Keluar
                                                     </button>
                                                 </form>
-                                            @elseif(!$izin->waktu_kembali_sebenarnya)
+                                            @elseif(!$izin->jam_kembali_aktual)
                                                 <form action="{{ route('satpam.izin_keluar.tandai_kembali', $izin) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Tandai siswa ini kembali?')">

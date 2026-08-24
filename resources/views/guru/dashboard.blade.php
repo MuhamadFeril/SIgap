@@ -305,6 +305,11 @@
                             <i class="bi bi-grid-fill"></i> Dashboard
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('guru.izin_keluar.index') }}">
+                            <i class="bi bi-check2-square"></i> Persetujuan Izin
+                        </a>
+                    </li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
                     <div class="user-info">
@@ -313,7 +318,7 @@
                         </div>
                         <div class="user-details">
                             <span class="user-name">{{ Auth::user()->name }}</span>
-                            <span class="user-role">{{ $guru->Mapel ?? 'Guru' }}</span>
+                            <span class="user-role">{{ $guru?->mapel ?? 'Guru' }}</span>
                         </div>
                     </div>
                     <form id="logout-form" action="{{ route('guru.logout') }}" method="POST" style="display: none;">
@@ -336,6 +341,12 @@
                         <a href="{{ route('guru.dashboard') }}" class="active">
                             <i class="bi bi-grid-fill"></i>
                             Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('guru.izin_keluar.index') }}">
+                            <i class="bi bi-check2-square"></i>
+                            Persetujuan Izin
                         </a>
                     </li>
                 </ul>
@@ -385,9 +396,12 @@
                         <div class="content-card">
                             <div class="content-card-header">
                                 <h5>Izin Keluar Menunggu Persetujuan</h5>
-                                @if($izinPending > 0)
-                                    <span class="badge badge-warning">{{ $izinPending }} Permintaan</span>
-                                @endif
+                                <a href="{{ route('guru.izin_keluar.index') }}" style="color: var(--theme-color); text-decoration: none; font-weight: 500;">
+                                    @if($izinPending > 0)
+                                        <span class="badge badge-warning">{{ $izinPending }}</span>
+                                    @endif
+                                    Kelola Semua <i class="bi bi-arrow-right"></i>
+                                </a>
                             </div>
                             <div class="content-card-body p-0">
                                 @if($izinKeluarTerbaru->count() > 0)
@@ -398,16 +412,16 @@
                                                 <th>Foto & Bukti</th>
                                                 <th>Alasan</th>
                                                 <th>Jam Keluar</th>
-                                                <th>Status</th>
+                                                <th>Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach($izinKeluarTerbaru as $izin)
                                                 <tr>
-                                                    <td>{{ $izin->siswa->user->name }}</td>
+                                                    <td>{{ $izin->siswa?->user?->name ?? '-' }}</td>
                                                     <td>
-                                                        @if($izin->siswa->foto_profil_path)
-                                                            <img src="{{ asset('storage/' . $izin->siswa->foto_profil_path) }}" alt="Foto {{ $izin->siswa->user->name }}" width="42" height="42" style="object-fit:cover;border-radius:50%;" class="me-2">
+                                                        @if($izin->siswa?->foto_profil_path)
+                                                            <img src="{{ asset('storage/' . $izin->siswa->foto_profil_path) }}" alt="Foto {{ $izin->siswa?->user?->name ?? 'siswa' }}" width="42" height="42" style="object-fit:cover;border-radius:50%;" class="me-2">
                                                         @endif
                                                         @if($izin->bukti_path)
                                                             @php($buktiVideo = in_array(strtolower(pathinfo($izin->bukti_path, PATHINFO_EXTENSION)), ['mp4', 'mov', 'webm']))
@@ -415,9 +429,18 @@
                                                         @endif
                                                     </td>
                                                     <td>{{ $izin->alasan }}</td>
-                                                    <td>{{ $izin->jam_keluar_rencana }}</td>
+                                                    <td>{{ $izin->jam_keluar_rencana instanceof \DateTime ? $izin->jam_keluar_rencana->format('H:i') : $izin->jam_keluar_rencana }}</td>
                                                     <td>
-                                                        <span class="badge badge-warning">Pending</span>
+                                                        <div class="d-flex gap-1">
+                                                            <form method="POST" action="{{ route('guru.izin_keluar.approve', $izin) }}">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> Setujui</button>
+                                                            </form>
+                                                            <form method="POST" action="{{ route('guru.izin_keluar.reject', $izin) }}">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tolak izin ini?')"><i class="bi bi-x-lg"></i> Tolak</button>
+                                                            </form>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -438,16 +461,22 @@
                                 <h5>Informasi Guru</h5>
                             </div>
                             <div class="content-card-body">
-                                @if($guru->Mapel)
+                                @if($guru?->mapel)
                                     <div class="mapel-info">
                                         <h6><i class="bi bi-book"></i> Mata Pelajaran</h6>
-                                        <p>{{ $guru->Mapel }}</p>
+                                        <p>{{ $guru->mapel }}</p>
                                     </div>
                                 @endif
-                                @if($guru->nip)
+                                @if($guru?->nip)
                                     <div class="mapel-info">
                                         <h6><i class="bi bi-person-badge"></i> NIP</h6>
                                         <p>{{ $guru->nip }}</p>
+                                    </div>
+                                @endif
+                                @if(!$guru)
+                                    <div class="mapel-info">
+                                        <h6><i class="bi bi-exclamation-circle"></i> Profil Guru</h6>
+                                        <p>Profil guru belum terhubung. Silakan hubungi admin.</p>
                                     </div>
                                 @endif
                                 <div class="mapel-info">

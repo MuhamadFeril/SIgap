@@ -22,12 +22,16 @@ class JadwalSatpam extends Model
         'status_hadir',
         'jam_masuk',
         'jam_pulang',
+        'waktu_masuk',
+        'waktu_pulang',
     ];
 
     protected $casts = [
         'tanggal' => 'date',
         'jam_masuk' => 'datetime',
         'jam_pulang' => 'datetime',
+        'waktu_masuk' => 'datetime',
+        'waktu_pulang' => 'datetime',
     ];
 
     public function satpam(): BelongsTo

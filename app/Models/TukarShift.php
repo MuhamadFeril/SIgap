@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
-#[Hidden(['jadwal_id', 'pengaju_id', 'penerima_id', 'disetujui_oleh'])]
+#[Hidden(['jadwal_id', 'jadwal_penerima_id', 'pengaju_id', 'penerima_id', 'disetujui_oleh'])]
 class TukarShift extends Model
 {
     use HasFactory, HasUuids;
@@ -17,6 +17,7 @@ class TukarShift extends Model
 
     protected $fillable = [
         'jadwal_id',
+        'jadwal_penerima_id',
         'pengaju_id',
         'penerima_id',
         'status',
@@ -26,6 +27,11 @@ class TukarShift extends Model
     public function jadwal(): BelongsTo
     {
         return $this->belongsTo(JadwalSatpam::class, 'jadwal_id');
+    }
+
+    public function jadwalPenerima(): BelongsTo
+    {
+        return $this->belongsTo(JadwalSatpam::class, 'jadwal_penerima_id');
     }
 
     public function pengaju(): BelongsTo

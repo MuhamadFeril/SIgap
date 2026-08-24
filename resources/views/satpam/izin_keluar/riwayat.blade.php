@@ -303,35 +303,31 @@
                             <tr>
                                 <th>Siswa</th>
                                 <th>Kelas</th>
-                                <th>Tanggal Keluar</th>
-                                <th>Tanggal Kembali</th>
-                                <th>Tujuan</th>
+                                <th>Rencana Keluar</th>
+                                <th>Aktual Keluar</th>
+                                <th>Alasan</th>
                                 <th>Status</th>
                                 <th>Waktu Sebenarnya</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($izinKeluar as $izin)
-                                <tr data-status="{{ $izin->waktu_kembali_sebenarnya ? 'completed' : ($izin->status === 'approved' ? 'approved' : $izin->status) }}" data-date="{{ $izin->tanggal_keluar }}">
+                                <tr data-status="{{ $izin->jam_kembali_aktual ? 'completed' : ($izin->status === 'approved' ? 'approved' : $izin->status) }}" data-date="{{ $izin->jam_keluar_rencana?->toDateString() }}">
                                     <td>
-                                        <strong>{{ $izin->siswa->user->name }}</strong>
+                                        <strong>{{ $izin->siswa?->user?->name ?? '-' }}</strong>
                                     </td>
-                                    <td>{{ $izin->siswa->kelas }}</td>
+                                    <td>{{ $izin->siswa?->kelas ?? '-' }}</td>
                                     <td>
-                                        {{ \Carbon\Carbon::parse($izin->tanggal_keluar)->locale('id')->translatedFormat('d M Y') }}
-                                        <br>
-                                        <small class="text-muted">{{ $izin->waktu_keluar ?? '-' }}</small>
+                                        {{ $izin->jam_keluar_rencana?->locale('id')->translatedFormat('d M Y H:i') ?? '-' }}
                                     </td>
                                     <td>
-                                        {{ \Carbon\Carbon::parse($izin->tanggal_kembali)->locale('id')->translatedFormat('d M Y') }}
-                                        <br>
-                                        <small class="text-muted">{{ $izin->waktu_kembali ?? '-' }}</small>
+                                        {{ $izin->jam_keluar_aktual?->locale('id')->translatedFormat('d M Y H:i') ?? '-' }}
                                     </td>
-                                    <td>{{ $izin->tujuan }}</td>
+                                    <td>{{ \Str::limit($izin->alasan ?? $izin->deskripsi, 30) }}</td>
                                     <td>
-                                        @if($izin->waktu_kembali_sebenarnya)
+                                        @if($izin->jam_kembali_aktual)
                                             <span class="badge badge-success">Selesai</span>
-                                        @elseif($izin->waktu_keluar_sebenarnya)
+                                        @elseif($izin->jam_keluar_aktual)
                                             <span class="badge badge-info">Sedang Keluar</span>
                                         @elseif($izin->status === 'approved')
                                             <span class="badge badge-success">Disetujui</span>
@@ -342,14 +338,14 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($izin->waktu_keluar_sebenarnya)
-                                            <small>Out: {{ \Carbon\Carbon::parse($izin->waktu_keluar_sebenarnya)->format('H:i') }}</small>
+                                        @if($izin->jam_keluar_aktual)
+                                            <small>Out: {{ $izin->jam_keluar_aktual->format('H:i') }}</small>
                                             <br>
                                         @endif
-                                        @if($izin->waktu_kembali_sebenarnya)
-                                            <small>In: {{ \Carbon\Carbon::parse($izin->waktu_kembali_sebenarnya)->format('H:i') }}</small>
+                                        @if($izin->jam_kembali_aktual)
+                                            <small>In: {{ $izin->jam_kembali_aktual->format('H:i') }}</small>
                                         @endif
-                                        @if(!$izin->waktu_keluar_sebenarnya && !$izin->waktu_kembali_sebenarnya)
+                                        @if(!$izin->jam_keluar_aktual && !$izin->jam_kembali_aktual)
                                             <small class="text-muted">-</small>
                                         @endif
                                     </td>

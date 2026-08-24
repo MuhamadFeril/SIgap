@@ -31,57 +31,86 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => 'user',
+            'role' => 'siswa',
             'status' => 'aktif',
         ]);
 
-        return redirect()->route('login')->with('status', 'Pendaftaran berhasil. Silakan masuk menggunakan akun Anda.');
+        return redirect()
+            ->route('login')
+            ->with('status', 'Pendaftaran berhasil. Silakan masuk menggunakan akun Anda.');
     }
 
     public function login(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|string',
         ]);
 
-        $credentials = $request->only('email', 'password');
+        $credentials = [
+            'email' => $validated['email'],
+            'password' => $validated['password'],
+        ];
+
         $remember = $request->boolean('remember');
 
-        if (Auth::attempt($credentials, $remember)) {
-            $user = Auth::user();
-
-            // Check if user is active
-            if ($user->status !== 'aktif') {
-                Auth::logout();
-                return back()->withErrors([
-                    'email' => 'Akun Anda tidak aktif. Silakan hubungi admin.',
-                ])->withInput(['email' => $request->email]);
-            }
-
-            $request->session()->regenerate();
-
-            // Redirect based on role
-            return match($user->role) {
-                'admin' => redirect()->intended(route('admin.dashboard')),
-                'guru' => redirect()->intended(route('guru.dashboard')),
-                'siswa' => redirect()->intended(route('siswa.dashboard')),
-                'satpam' => redirect()->intended(route('satpam.dashboard')),
-                'user' => redirect()->intended(route('user.dashboard')),
-                default => redirect()->route('landing'),
-            };
+        if (!Auth::attempt($credentials, $remember)) {
+            return back()
+                ->withErrors([
+                    'email' => 'Email atau kata sandi yang Anda masukkan salah.',
+                ])
+                ->withInput([
+                    'email' => $request->email,
+                ]);
         }
 
-        return back()->withErrors([
-            'email' => 'Email atau kata sandi yang Anda masukkan salah.',
-        ])->withInput(['email' => $request->email]);
+        $user = Auth::user();
+
+        if ($user->status !== 'aktif') {
+            Auth::logout();
+
+            return back()
+                ->withErrors([
+                    'email' => 'Akun Anda tidak aktif. Silakan hubungi admin.',
+                ])
+                ->withInput([
+                    'email' => $request->email,
+                ]);
+        }
+
+        $request->session()->regenerate();
+
+        switch ($user->role) {
+            case 'admin':
+                return redirect()->route('admin.dashboard');
+
+            case 'guru':
+                return redirect()->route('guru.dashboard');
+
+            case 'siswa':
+                return redirect()->route('siswa.dashboard');
+
+            case 'satpam':
+                return redirect()->route('satpam.dashboard');
+
+            default:
+                Auth::logout();
+
+                return redirect()
+                    ->route('login')
+                    ->withErrors([
+                        'email' => 'Role akun tidak dikenali.',
+                    ]);
+        }
     }
 
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect()->route('login');
     }
 }

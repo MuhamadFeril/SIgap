@@ -390,14 +390,40 @@
                     <div class="content-card-header">
                         <h5><i class="bi bi-file-text"></i> Detail Permintaan Tukar Shift</h5>
                         <div class="d-flex gap-2">
-                            @if($tukarShift->status === 'pending' && $tukarShift->satpam_id === Auth::user()->satpam->id)
-                                <form action="{{ route('satpam.tukar_shift.destroy', $tukarShift) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan permintaan ini?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="bi bi-x-circle"></i> Batalkan
-                                    </button>
-                                </form>
+                            @if($tukarShift->status === 'pending')
+                                @if($tukarShift->penerima_id === Auth::user()->satpam?->id)
+                                    @php($jadwalSaya = $tukarShift->penerima->jadwalSatpam->where('tanggal', '>=', \Carbon\Carbon::today())->sortBy('tanggal'))
+                                    @if($jadwalSaya->isNotEmpty())
+                                        <form action="{{ route('satpam.tukar_shift.approve', $tukarShift) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <select name="jadwal_penerima_id" class="form-select form-select-sm d-inline-block align-middle" style="width:auto;" required title="Pilih jadwal Anda yang diberikan balik">
+                                                <option value="">Pilih jadwal tukar balik</option>
+                                                @foreach($jadwalSaya as $js)
+                                                    <option value="{{ $js->id }}">{{ $js->tanggal?->locale('id')->translatedFormat('d M Y') }} — {{ ucfirst($js->shift) }}</option>
+                                                @endforeach
+                                            </select>
+                                            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Setujui dan tukar shift ini?')">
+                                                <i class="bi bi-check"></i> Setujui
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-muted small align-self-center">Tidak ada jadwal untuk ditukar</span>
+                                    @endif
+                                    <form action="{{ route('satpam.tukar_shift.reject', $tukarShift) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tolak permintaan tukar shift ini?')">
+                                            <i class="bi bi-x"></i> Tolak
+                                        </button>
+                                    </form>
+                                @elseif($tukarShift->pengaju_id === Auth::user()->satpam?->id)
+                                    <form action="{{ route('satpam.tukar_shift.destroy', $tukarShift) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan permintaan ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <i class="bi bi-x-circle"></i> Batalkan
+                                        </button>
+                                    </form>
+                                @endif
                             @endif
                             <a href="{{ route('satpam.tukar_shift.index') }}" class="btn btn-secondary">
                                 <i class="bi bi-arrow-left"></i> Kembali
@@ -405,6 +431,13 @@
                         </div>
                     </div>
                     <div class="content-card-body">
+                        @if (session('error'))
+                            <div class="alert alert-danger">{{ session('error') }}</div>
+                        @endif
+                        @if (session('success'))
+                            <div class="alert alert-success">{{ session('success') }}</div>
+                        @endif
+
                         <div class="detail-row">
                             <div class="detail-label">Status</div>
                             <div class="detail-value">
@@ -414,8 +447,6 @@
                                     <span class="badge badge-success">Disetujui</span>
                                 @elseif($tukarShift->status === 'rejected')
                                     <span class="badge badge-danger">Ditolak</span>
-                                @elseif($tukarShift->status === 'cancelled')
-                                    <span class="badge badge-secondary">Dibatalkan</span>
                                 @else
                                     <span class="badge badge-info">{{ ucfirst($tukarShift->status) }}</span>
                                 @endif
@@ -425,68 +456,50 @@
                         <div class="detail-row">
                             <div class="detail-label">Tanggal</div>
                             <div class="detail-value">
-                                {{ \Carbon\Carbon::parse($tukarShift->tanggal)->locale('id')->translatedFormat('l, d F Y') }}
+                                {{ $tukarShift->jadwal?->tanggal?->locale('id')->translatedFormat('l, d F Y') ?? '-' }}
                             </div>
                         </div>
 
                         <div class="shift-comparison">
                             <div class="shift-box">
-                                <h6>Shift Anda</h6>
-                                <div class="shift-label">{{ ucfirst($tukarShift->shift_asal) }}</div>
-                                <div class="shift-time">{{ $tukarShift->jam_asal }}</div>
+                                <h6>Shift Pemohon ({{ $tukarShift->pengaju?->user?->name ?? '-' }})</h6>
+                                <div class="shift-label">{{ ucfirst($tukarShift->jadwal?->shift ?? '-') }}</div>
+                                <div class="shift-time">{{ $tukarShift->jadwal?->tanggal?->locale('id')->translatedFormat('d M Y') ?? '-' }}</div>
                             </div>
-                            <div class="arrow-exchange">
-                                <i class="bi bi-arrow-left-right"></i>
-                            </div>
-                            <div class="shift-box target">
-                                <h6>Shift Target</h6>
-                                <div class="shift-label">{{ ucfirst($tukarShift->shift_target) }}</div>
-                                <div class="shift-time">{{ $tukarShift->jam_target }}</div>
-                            </div>
+                            @if($tukarShift->jadwalPenerima)
+                                <div class="arrow-exchange"><i class="bi bi-arrow-left-right"></i></div>
+                                <div class="shift-box target">
+                                    <h6>Shift Anda yang Diberikan</h6>
+                                    <div class="shift-label">{{ ucfirst($tukarShift->jadwalPenerima?->shift ?? '-') }}</div>
+                                    <div class="shift-time">{{ $tukarShift->jadwalPenerima?->tanggal?->locale('id')->translatedFormat('d M Y') ?? '-' }}</div>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="detail-row">
                             <div class="detail-label">Pemohon</div>
                             <div class="detail-value">
-                                <strong>{{ $tukarShift->satpam->user->name }}</strong>
+                                <strong>{{ $tukarShift->pengaju?->user?->name ?? '-' }}</strong>
                             </div>
                         </div>
 
                         <div class="detail-row">
                             <div class="detail-label">Tukar Dengan</div>
                             <div class="detail-value">
-                                @if($tukarShift->satpamTarget)
-                                    <strong>{{ $tukarShift->satpamTarget->user->name }}</strong>
+                                @if($tukarShift->penerima)
+                                    <strong>{{ $tukarShift->penerima->user?->name ?? '-' }}</strong>
                                 @else
                                     <span class="text-muted">Belum dipilih</span>
                                 @endif
                             </div>
                         </div>
 
-                        <div class="detail-row">
-                            <div class="detail-label">Alasan</div>
-                            <div class="detail-value">{{ $tukarShift->alasan }}</div>
-                        </div>
-
                         @if($tukarShift->status === 'approved')
                             <div class="detail-row">
                                 <div class="detail-label">Disetujui Oleh</div>
                                 <div class="detail-value">
-                                    @if($tukarShift->approved_by)
-                                        {{ $tukarShift->approvedBy->name }}
-                                    @else
-                                        -
-                                    @endif
-                                </div>
-                            </div>
-                        @endif
-
-                        @if($tukarShift->status === 'rejected')
-                            <div class="detail-row">
-                                <div class="detail-label">Ditolak Oleh</div>
-                                <div class="detail-value">
-                                    @if($tukarShift->rejected_by)
-                                        {{ $tukarShift->rejectedBy->name }}
+                                    @if($tukarShift->disetujuiOleh)
+                                        {{ $tukarShift->disetujuiOleh->name }}
                                     @else
                                         -
                                     @endif
@@ -507,48 +520,22 @@
                                 <div class="timeline-item">
                                     <div class="timeline-time">{{ \Carbon\Carbon::parse($tukarShift->created_at)->locale('id')->translatedFormat('d F Y H:i') }}</div>
                                     <div class="timeline-title">Permintaan Dibuat</div>
-                                    <div class="timeline-desc">Permintaan tukar shift diajukan oleh {{ $tukarShift->satpam->user->name }}</div>
+                                    <div class="timeline-desc">Permintaan tukar shift diajukan oleh {{ $tukarShift->pengaju?->user?->name ?? '-' }}</div>
                                 </div>
 
                                 @if($tukarShift->status === 'approved')
                                     <div class="timeline-item">
-                                        <div class="timeline-time">
-                                            @if($tukarShift->approved_at)
-                                                {{ \Carbon\Carbon::parse($tukarShift->approved_at)->locale('id')->translatedFormat('d F Y H:i') }}
-                                            @else
-                                                -
-                                            @endif
-                                        </div>
+                                        <div class="timeline-time">{{ \Carbon\Carbon::parse($tukarShift->updated_at)->locale('id')->translatedFormat('d F Y H:i') }}</div>
                                         <div class="timeline-title">Disetujui</div>
-                                        <div class="timeline-desc">Permintaan disetujui oleh {{ $tukarShift->satpamTarget->user->name }}</div>
+                                        <div class="timeline-desc">Permintaan disetujui oleh {{ $tukarShift->disetujuiOleh?->name ?? $tukarShift->penerima?->user?->name ?? '-' }}</div>
                                     </div>
                                 @endif
 
                                 @if($tukarShift->status === 'rejected')
                                     <div class="timeline-item">
-                                        <div class="timeline-time">
-                                            @if($tukarShift->rejected_at)
-                                                {{ \Carbon\Carbon::parse($tukarShift->rejected_at)->locale('id')->translatedFormat('d F Y H:i') }}
-                                            @else
-                                                -
-                                            @endif
-                                        </div>
+                                        <div class="timeline-time">{{ \Carbon\Carbon::parse($tukarShift->updated_at)->locale('id')->translatedFormat('d F Y H:i') }}</div>
                                         <div class="timeline-title">Ditolak</div>
-                                        <div class="timeline-desc">Permintaan ditolak oleh {{ $tukarShift->satpamTarget->user->name }}</div>
-                                    </div>
-                                @endif
-
-                                @if($tukarShift->status === 'cancelled')
-                                    <div class="timeline-item">
-                                        <div class="timeline-time">
-                                            @if($tukarShift->cancelled_at)
-                                                {{ \Carbon\Carbon::parse($tukarShift->cancelled_at)->locale('id')->translatedFormat('d F Y H:i') }}
-                                            @else
-                                                -
-                                            @endif
-                                        </div>
-                                        <div class="timeline-title">Dibatalkan</div>
-                                        <div class="timeline-desc">Permintaan dibatalkan oleh pemohon</div>
+                                        <div class="timeline-desc">Permintaan ditolak oleh {{ $tukarShift->penerima?->user?->name ?? '-' }}</div>
                                     </div>
                                 @endif
                             </div>

@@ -382,7 +382,7 @@
 
                         <div class="shift-time">
                             <i class="bi bi-clock"></i>
-                            <span>{{ $jadwal->jam_masuk }} - {{ $jadwal->jam_pulang }}</span>
+                            <span>{{ $jadwal->jam_masuk?->format('H:i') ?? '-' }} - {{ $jadwal->jam_pulang?->format('H:i') ?? '-' }}</span>
                         </div>
 
                         <div class="shift-status">
