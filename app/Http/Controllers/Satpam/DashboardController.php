@@ -41,9 +41,10 @@ class DashboardController extends Controller
                 ->whereNull('jam_kembali_aktual')
                 ->count();
 
-            // Jadwal hari ini
+            // Jadwal hari ini (terbaru = jadwal baru dari admin diprioritaskan)
             $jadwalHariIni = JadwalSatpam::where('satpam_id', $satpam->id)
-                ->where('tanggal', today())
+                ->whereDate('tanggal', today())
+                ->orderByDesc('id')
                 ->first();
 
             // Permintaan tukar shift masuk

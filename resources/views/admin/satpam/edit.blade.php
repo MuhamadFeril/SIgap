@@ -302,7 +302,7 @@
             <div class="col-md-10 p-4">
                 <div class="content-card">
                     <div class="content-card-header">
-                        <h5>Edit Satpam: {{ $satpam->user->name }}</h5>
+                        <h5>Edit Satpam: {{ $satpam?->user?->name }}</h5>
                         <a href="{{ route('admin.satpam.index') }}" class="btn btn-secondary">
                             <i class="bi bi-arrow-left"></i> Kembali
                         </a>
@@ -325,13 +325,13 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Nama Lengkap</label>
-                                        <input type="text" name="name" class="form-control" value="{{ old('name', $satpam->user->name) }}" required>
+                                        <input type="text" name="name" class="form-control" value="{{ old('name', $satpam?->user?->name) }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Email</label>
-                                        <input type="email" name="email" class="form-control" value="{{ old('email', $satpam->user->email) }}" required>
+                                        <input type="email" name="email" class="form-control" value="{{ old('email', $satpam?->user?->email) }}" required>
                                     </div>
                                 </div>
                             </div>
@@ -365,8 +365,8 @@
                                     <div class="mb-3">
                                         <label class="form-label">Status</label>
                                         <select name="status" class="form-control" required>
-                                            <option value="aktif" {{ $satpam->user->status == 'aktif' ? 'selected' : '' }}>Aktif</option>
-                                            <option value="nonaktif" {{ $satpam->user->status == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                                            <option value="aktif" {{ $satpam?->user?->status == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                            <option value="nonaktif" {{ $satpam?->user?->status == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                                         </select>
                                     </div>
                                 </div>

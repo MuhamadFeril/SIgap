@@ -367,17 +367,17 @@
                                 <tbody>
                                     @foreach($izinKeluar as $izin)
                                         <tr>
-                                            <td>{{ $izin->siswa->user->name }}</td>
+                                            <td>{{ $izin->siswa?->user?->name }}</td>
                                             <td>
-                                                @if($izin->siswa->foto_profil_path)
-                                                    <img src="{{ asset('storage/' . $izin->siswa->foto_profil_path) }}" alt="Foto {{ $izin->siswa->user->name }}" width="42" height="42" style="object-fit:cover;border-radius:50%;" class="me-2">
+                                                @if($izin?->siswa?->foto_profil_path)
+                                                    <img src="{{ asset('storage/' . $izin?->siswa?->foto_profil_path) }}" alt="Foto {{ $izin->siswa?->user?->name }}" width="42" height="42" style="object-fit:cover;border-radius:50%;" class="me-2">
                                                 @endif
                                                 @if($izin->bukti_path)
                                                     @php($buktiVideo = in_array(strtolower(pathinfo($izin->bukti_path, PATHINFO_EXTENSION)), ['mp4', 'mov', 'webm']))
                                                     <a href="{{ asset('storage/' . $izin->bukti_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">{{ $buktiVideo ? 'Putar video' : 'Lihat bukti' }}</a>
                                                 @endif
                                             </td>
-                                            <td>{{ $izin->siswa->kelas }}</td>
+                                            <td>{{ $izin?->siswa?->kelas }}</td>
                                             <td>{{ $izin->alasan }}</td>
                                             <td>{{ $izin->jam_keluar_rencana }}</td>
                                             <td>
@@ -391,15 +391,17 @@
                                             </td>
                                             <td>
                                                 @if(!$izin->jam_keluar_aktual)
-                                                    <form method="POST" action="{{ route('satpam.izin_keluar.tandai_keluar', $izin) }}" style="display: inline;">
+                                                    <form method="POST" action="{{ route('satpam.izin_keluar.tandai_keluar', $izin) }}" enctype="multipart/form-data" class="d-inline-block">
                                                         @csrf
+                                                        <input type="file" name="foto" accept="image/*" class="form-control form-control-sm d-inline-block align-middle mb-1" style="width:auto; max-width:180px;" title="Foto bukti saat keluar">
                                                         <button type="submit" class="btn btn-success btn-sm">
                                                             <i class="bi bi-box-arrow-right"></i> Tandai Keluar
                                                         </button>
                                                     </form>
                                                 @elseif($izin->jam_keluar_aktual && !$izin->jam_kembali_aktual)
-                                                    <form method="POST" action="{{ route('satpam.izin_keluar.tandai_kembali', $izin) }}" style="display: inline;">
+                                                    <form method="POST" action="{{ route('satpam.izin_keluar.tandai_kembali', $izin) }}" enctype="multipart/form-data" class="d-inline-block">
                                                         @csrf
+                                                        <input type="file" name="foto" accept="image/*" class="form-control form-control-sm d-inline-block align-middle mb-1" style="width:auto; max-width:180px;" title="Foto bukti saat kembali">
                                                         <button type="submit" class="btn btn-success btn-sm">
                                                             <i class="bi bi-box-arrow-in-left"></i> Tandai Kembali
                                                         </button>

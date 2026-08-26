@@ -350,12 +350,12 @@
 
                         <div class="detail-row">
                             <div class="detail-label">Nama Siswa</div>
-                            <div class="detail-value">{{ $izinKeluar->siswa->user->name }}</div>
+                            <div class="detail-value">{{ $izinKeluar->siswa?->user?->name }}</div>
                         </div>
 
                         <div class="detail-row">
                             <div class="detail-label">Kelas</div>
-                            <div class="detail-value">{{ $izinKeluar->siswa->kelas }}</div>
+                            <div class="detail-value">{{ $izinKeluar?->siswa?->kelas }}</div>
                         </div>
 
                         <div class="detail-row">

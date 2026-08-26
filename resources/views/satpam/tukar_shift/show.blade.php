@@ -392,7 +392,7 @@
                         <div class="d-flex gap-2">
                             @if($tukarShift->status === 'pending')
                                 @if($tukarShift->penerima_id === Auth::user()->satpam?->id)
-                                    @php($jadwalSaya = $tukarShift->penerima->jadwalSatpam->where('tanggal', '>=', \Carbon\Carbon::today())->sortBy('tanggal'))
+                                    @php($jadwalSaya = $tukarShift?->penerima?->jadwalSatpam->where('tanggal', '>=', \Carbon\Carbon::today())->sortBy('tanggal'))
                                     @if($jadwalSaya->isNotEmpty())
                                         <form action="{{ route('satpam.tukar_shift.approve', $tukarShift) }}" method="POST" class="d-inline">
                                             @csrf
@@ -487,7 +487,7 @@
                             <div class="detail-label">Tukar Dengan</div>
                             <div class="detail-value">
                                 @if($tukarShift->penerima)
-                                    <strong>{{ $tukarShift->penerima->user?->name ?? '-' }}</strong>
+                                    <strong>{{ $tukarShift?->penerima?->user?->name ?? '-' }}</strong>
                                 @else
                                     <span class="text-muted">Belum dipilih</span>
                                 @endif

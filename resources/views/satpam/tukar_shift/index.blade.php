@@ -337,7 +337,7 @@
                                     </td>
                                     <td>
                                         @if($tukar->penerima)
-                                            <strong>{{ $tukar->penerima->user?->name ?? '-' }}</strong>
+                                            <strong>{{ $tukar?->penerima?->user?->name ?? '-' }}</strong>
                                         @else
                                             <span class="text-muted">Belum dipilih</span>
                                         @endif

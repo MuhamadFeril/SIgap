@@ -296,6 +296,11 @@
                             <i class="bi bi-shield-check"></i> Satpam
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.jadwal.index') }}">
+                            <i class="bi bi-calendar-check"></i> Jadwal
+                        </a>
+                    </li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
                     <div class="user-info">
@@ -347,6 +352,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('admin.jadwal.index') }}">
+                            <i class="bi bi-calendar-check"></i>
+                            Jadwal
+                        </a>
+                    </li>
+                    <li>
                         <a href="#">
                             <i class="bi bi-gear"></i>
                             Pengaturan
@@ -363,6 +374,25 @@
                         Selamat datang di panel kontrol SIGAP — pantau semua aktivitas izin keluar dan jadwal satpam.
                     </p>
                 </div>
+
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle"></i> {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+                @if(session('info'))
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <i class="bi bi-info-circle"></i> {{ session('info') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
 
                 <div class="row mb-4">
                     <div class="col-md-3">
@@ -427,10 +457,10 @@
                                         @endphp
                                         @foreach($recentGuru as $guru)
                                             <tr>
-                                                <td>{{ $guru->user->name }}</td>
+                                                <td>{{ $guru?->user?->name }}</td>
                                                 <td>{{ $guru->mapel }}</td>
                                                 <td>
-                                                    @if($guru->user->status == 'aktif')
+                                                    @if($guru?->user?->status == 'aktif')
                                                         <span class="badge badge-success">Aktif</span>
                                                     @else
                                                         <span class="badge badge-danger">Nonaktif</span>
@@ -466,10 +496,10 @@
                                         @endphp
                                         @foreach($recentSiswa as $siswa)
                                             <tr>
-                                                <td>{{ $siswa->user->name }}</td>
+                                                <td>{{ $siswa?->user?->name }}</td>
                                                 <td>{{ $siswa->kelas }}</td>
                                                 <td>
-                                                    @if($siswa->user->status == 'aktif')
+                                                    @if($siswa?->user?->status == 'aktif')
                                                         <span class="badge badge-success">Aktif</span>
                                                     @else
                                                         <span class="badge badge-danger">Nonaktif</span>
@@ -508,10 +538,10 @@
                                         @endphp
                                         @foreach($recentSatpam as $satpam)
                                             <tr>
-                                                <td>{{ $satpam->user->name }}</td>
+                                                <td>{{ $satpam?->user?->name }}</td>
                                                 <td>{{ $satpam->nip }}</td>
                                                 <td>
-                                                    @if($satpam->user->status == 'aktif')
+                                                    @if($satpam?->user?->status == 'aktif')
                                                         <span class="badge badge-success">Aktif</span>
                                                     @else
                                                         <span class="badge badge-danger">Nonaktif</span>

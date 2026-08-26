@@ -401,7 +401,7 @@
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                             @if($tukar->status === 'pending')
-                                                @php($jadwalSaya = $tukar->penerima->jadwalSatpam->where('tanggal', '>=', \Carbon\Carbon::today())->sortBy('tanggal'))
+                                                @php($jadwalSaya = $tukar?->penerima?->jadwalSatpam->where('tanggal', '>=', \Carbon\Carbon::today())->sortBy('tanggal'))
                                                 @if($jadwalSaya->isNotEmpty())
                                                     <form action="{{ route('satpam.tukar_shift.approve', $tukar) }}" method="POST" class="d-inline">
                                                         @csrf

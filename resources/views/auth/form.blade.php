@@ -50,6 +50,7 @@
                 <form method="POST" action="{{ route('register.submit') }}">@csrf
                     <div class="group"><label for="name">Nama lengkap</label><input id="name" name="name" value="{{ old('name') }}" required autofocus autocomplete="name"></div>
                     <div class="group"><label for="email">Email</label><input type="email" id="email" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="nama@sekolah.sch.id"></div>
+                    <div class="row"><div class="group"><label for="nis">NIS</label><input id="nis" name="nis" value="{{ old('nis') }}" required autocomplete="off" placeholder="Nomor Induk Siswa"></div><div class="group"><label for="kelas">Kelas</label><input id="kelas" name="kelas" value="{{ old('kelas') }}" required autocomplete="off" placeholder="Contoh: X-A"></div></div>
                     <div class="row"><div class="group"><label for="password">Kata sandi</label><input type="password" id="password" name="password" required autocomplete="new-password"></div><div class="group"><label for="password_confirmation">Konfirmasi kata sandi</label><input type="password" id="password_confirmation" name="password_confirmation" required autocomplete="new-password"></div></div>
                     <button type="submit">Daftar akun</button>
                 </form>

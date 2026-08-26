@@ -363,6 +363,25 @@
                     </p>
                 </div>
 
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle"></i> {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+                @if(session('info'))
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <i class="bi bi-info-circle"></i> {{ session('info') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
                 <div class="row mb-4">
                     <div class="col-md-3">
                         <div class="stat-card">
@@ -414,6 +433,7 @@
                                         <h6><i class="bi bi-calendar"></i> {{ $jadwalHariIni->tanggal->format('d F Y') }}</h6>
                                         <p><strong>Shift:</strong> {{ ucfirst($jadwalHariIni->shift) }}</p>
                                         <p><strong>Status:</strong> 
+                                            <span id="jdwlStatus">
                                             @if($jadwalHariIni->status_hadir === 'hadir')
                                                 <span class="badge badge-success">Hadir</span>
                                             @elseif($jadwalHariIni->status_hadir === 'belum_presensi')
@@ -421,13 +441,14 @@
                                             @else
                                                 <span class="badge badge-danger">Tidak Hadir</span>
                                             @endif
+                                            </span>
                                         </p>
-                                        @if($jadwalHariIni->jam_masuk)
-                                            <p><strong>Masuk:</strong> {{ $jadwalHariIni->jam_masuk->format('H:i') }}</p>
-                                        @endif
-                                        @if($jadwalHariIni->jam_pulang)
-                                            <p><strong>Pulang:</strong> {{ $jadwalHariIni->jam_pulang->format('H:i') }}</p>
-                                        @endif
+                                        <p><strong>Jadwal Masuk:</strong> {{ $jadwalHariIni->jam_masuk?->format('H:i') ?? '-' }}</p>
+                                        <p><strong>Jadwal Pulang:</strong> {{ $jadwalHariIni->jam_pulang?->format('H:i') ?? '-' }}</p>
+                                        <p><strong>Presensi Masuk:</strong> <span id="jdwlWaktuMasuk">{{ $jadwalHariIni->waktu_masuk?->format('H:i') ?? '-' }}</span>
+                                            <span id="jdwlTelatMasuk">@if($jadwalHariIni->telat_masuk && $jadwalHariIni->waktu_masuk)<span class="badge badge-danger">Telat</span>@endif</span>
+                                        </p>
+                                        <p><strong>Presensi Pulang:</strong> <span id="jdwlWaktuPulang">{{ $jadwalHariIni->waktu_pulang?->format('H:i') ?? '-' }}</span></p>
                                     </div>
                                 @else
                                     <div class="text-center py-4">
@@ -445,6 +466,28 @@
                             </div>
                             <div class="content-card-body">
                                 <div class="d-grid gap-2">
+                                    @php
+                                        $sudahMasuk = $jadwalHariIni && $jadwalHariIni->waktu_masuk;
+                                        $sudahPulang = $jadwalHariIni && $jadwalHariIni->waktu_pulang;
+                                        $presensiState = !$sudahMasuk ? 'masuk' : (!$sudahPulang ? 'pulang' : 'selesai');
+                                        $bisaPulang = !$jadwalHariIni || !$jadwalHariIni->jam_pulang || now()->gte($jadwalHariIni->jam_pulang);
+                                        $pulangDisabled = $presensiState === 'pulang' && !$bisaPulang;
+                                    @endphp
+                                    <button type="button" id="presensiBtn" class="btn w-100 @if($presensiState === 'masuk') btn-success @elseif($presensiState === 'pulang') btn-warning @else btn-outline-secondary @endif"
+                                        data-state="{{ $presensiState }}"
+                                        @if($presensiState === 'selesai' || $pulangDisabled) disabled @endif
+                                        @if($pulangDisabled) data-buka="{{ $jadwalHariIni->jam_pulang->format('H:i') }}" @endif>
+                                        @if($presensiState === 'masuk')
+                                            <i class="bi bi-box-arrow-in-right"></i> Presensi Masuk
+                                        @elseif($presensiState === 'pulang')
+                                            <i class="bi bi-box-arrow-left"></i> Presensi Pulang
+                                        @else
+                                            <i class="bi bi-check2-all"></i> Presensi Hari Ini Selesai
+                                        @endif
+                                    </button>
+                                        @if($pulangDisabled)
+                                        <small class="text-muted mt-1 d-block" id="pulangNote">Belum waktunya presensi pulang (jam {{ $jadwalHariIni->jam_pulang->format('H:i') }})</small>
+                                    @endif
                                     <a href="{{ route('satpam.izin_keluar.index') }}" class="btn btn-outline-primary">
                                         <i class="bi bi-person-badge"></i> Kelola Izin Keluar
                                     </a>
@@ -468,6 +511,109 @@
         </div>
     </div>
 
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1090;">
+        <div id="presensiToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="presensiToastBody"></div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const btn = document.getElementById('presensiBtn');
+            if (!btn) return;
+
+            const buka = btn.dataset.buka;
+            if (buka) {
+                const parts = buka.split(':').map(Number);
+                const target = new Date();
+                target.setHours(parts[0], parts[1], 0, 0);
+                const diff = target - new Date();
+                if (diff > 0) {
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        const note = document.getElementById('pulangNote');
+                        if (note) note.remove();
+                    }, diff);
+                }
+            }
+
+            const toastEl = document.getElementById('presensiToast');
+            const toastBody = document.getElementById('presensiToastBody');
+            const toast = toastEl ? new bootstrap.Toast(toastEl, { delay: 3000 }) : null;
+
+            function showToast(message, type) {
+                if (!toast) return;
+                toastEl.className = 'toast align-items-center border-0 text-bg-' + (type === 'error' ? 'danger' : 'success');
+                toastBody.textContent = message;
+                toast.show();
+            }
+
+            function applyState(state, data) {
+                if (state === 'masuk') {
+                    btn.className = 'btn btn-warning w-100';
+                    btn.innerHTML = '<i class="bi bi-box-arrow-left"></i> Presensi Pulang';
+                    btn.dataset.state = 'pulang';
+                    btn.disabled = false;
+                } else if (state === 'pulang') {
+                    btn.className = 'btn btn-outline-secondary w-100';
+                    btn.innerHTML = '<i class="bi bi-check2-all"></i> Presensi Hari Ini Selesai';
+                    btn.dataset.state = 'selesai';
+                    btn.disabled = true;
+                }
+                if (data) {
+                    if (data.status_hadir) {
+                        const map = {
+                            'hadir': '<span class="badge badge-success">Hadir</span>',
+                            'belum_presensi': '<span class="badge badge-warning">Belum Presensi</span>',
+                            'tidak_hadir': '<span class="badge badge-danger">Tidak Hadir</span>',
+                        };
+                        const el = document.getElementById('jdwlStatus');
+                        if (el && map[data.status_hadir]) el.innerHTML = map[data.status_hadir];
+                    }
+                    if (document.getElementById('jdwlWaktuMasuk')) document.getElementById('jdwlWaktuMasuk').textContent = data.waktu_masuk ?? '-';
+                    if (document.getElementById('jdwlWaktuPulang')) document.getElementById('jdwlWaktuPulang').textContent = data.waktu_pulang ?? '-';
+                    const telatEl = document.getElementById('jdwlTelatMasuk');
+                    if (telatEl) telatEl.innerHTML = (data.telat_masuk) ? '<span class="badge badge-danger">Telat</span>' : '';
+                }
+            }
+
+            btn.addEventListener('click', function () {
+                const original = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
+
+                fetch('{{ route("satpam.presensi") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        applyState(res.state, res);
+                        showToast(res.message, 'success');
+                    } else {
+                        btn.disabled = false;
+                        btn.innerHTML = original;
+                        showToast(res.message || 'Gagal presensi', 'error');
+                    }
+                })
+                .catch(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = original;
+                    showToast('Terjadi kesalahan, coba lagi', 'error');
+                });
+            });
+        });
+    </script>
 </body>
 </html>

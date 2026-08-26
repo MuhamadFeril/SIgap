@@ -246,7 +246,7 @@
                             </div>
                         @endif
 
-                        <form action="{{ route('siswa.izin_keluar.store') }}" method="POST">
+                        <form action="{{ route('siswa.izin_keluar.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
                             <div class="mb-4">
@@ -265,6 +265,13 @@
                                 <label for="deskripsi" class="form-label">Deskripsi Tambahan</label>
                                 <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3" placeholder="Keterangan tambahan (opsional)">{{ old('deskripsi') }}</textarea>
                                 <div class="help-text">Tambahkan keterangan jika diperlukan</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="bukti" class="form-label">Foto Bukti</label>
+                                <input type="file" class="form-control" id="bukti" name="bukti" accept="image/*" onchange="if(this.files.length){document.getElementById('preview').src=URL.createObjectURL(this.files[0]);document.getElementById('preview').style.display='block';}">
+                                <div class="help-text">Unggah foto sebagai bukti izin (mis. surat orang tua), opsional</div>
+                                <img id="preview" src="#" alt="Pratinjau bukti" style="display:none; margin-top:12px; max-width:220px; border-radius:10px; border:1px solid var(--line);">
                             </div>
 
                             <div class="alert alert-info">

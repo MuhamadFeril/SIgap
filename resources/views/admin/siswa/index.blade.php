@@ -344,16 +344,16 @@
                                             <td>
                                                 <div class="d-flex align-items-center gap-2">
                                                     <div class="user-avatar" style="width: 32px; height: 32px; font-size: 12px;">
-                                                        {{ substr($item->user->name, 0, 1) }}
+                                                        {{ substr($item?->user?->name, 0, 1) }}
                                                     </div>
-                                                    <span>{{ $item->user->name }}</span>
+                                                    <span>{{ $item?->user?->name }}</span>
                                                 </div>
                                             </td>
                                             <td>{{ $item->nis }}</td>
                                             <td>{{ $item->kelas }}</td>
-                                            <td>{{ $item->user->email }}</td>
+                                            <td>{{ $item?->user?->email }}</td>
                                             <td>
-                                                @if($item->user->status == 'aktif')
+                                                @if($item?->user?->status == 'aktif')
                                                     <span class="badge badge-success">Aktif</span>
                                                 @else
                                                     <span class="badge badge-danger">Nonaktif</span>

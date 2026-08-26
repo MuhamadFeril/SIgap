@@ -308,7 +308,7 @@
                                     <option value="">Pilih Satpam</option>
                                     @foreach($satpams as $satpam)
                                         <option value="{{ $satpam->id }}" {{ old('penerima_id') == $satpam->id ? 'selected' : '' }}>
-                                            {{ $satpam->user->name }}
+                                            {{ $satpam?->user?->name }}
                                         </option>
                                     @endforeach
                                 </select>

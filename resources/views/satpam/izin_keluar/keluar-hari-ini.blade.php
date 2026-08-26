@@ -394,15 +394,17 @@
                                     <td>
                                         @if($izin->status === 'approved')
                                             @if(!$izin->jam_keluar_aktual)
-                                                <form action="{{ route('satpam.izin_keluar.tandai_keluar', $izin) }}" method="POST" class="d-inline">
+                                                <form action="{{ route('satpam.izin_keluar.tandai_keluar', $izin) }}" method="POST" enctype="multipart/form-data" class="d-inline">
                                                     @csrf
+                                                    <input type="file" name="foto" accept="image/*" class="form-control form-control-sm d-inline-block align-middle" style="width:auto; max-width:160px;" title="Foto bukti saat keluar">
                                                     <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Tandai siswa ini keluar?')">
                                                         <i class="bi bi-box-arrow-right"></i> Keluar
                                                     </button>
                                                 </form>
                                             @elseif(!$izin->jam_kembali_aktual)
-                                                <form action="{{ route('satpam.izin_keluar.tandai_kembali', $izin) }}" method="POST" class="d-inline">
+                                                <form action="{{ route('satpam.izin_keluar.tandai_kembali', $izin) }}" method="POST" enctype="multipart/form-data" class="d-inline">
                                                     @csrf
+                                                    <input type="file" name="foto" accept="image/*" class="form-control form-control-sm d-inline-block align-middle" style="width:auto; max-width:160px;" title="Foto bukti saat kembali">
                                                     <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Tandai siswa ini kembali?')">
                                                         <i class="bi bi-box-arrow-in-right"></i> Kembali
                                                     </button>

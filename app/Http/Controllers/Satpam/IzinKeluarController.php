@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\IzinKeluar;
 use App\Models\LogGerbang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class IzinKeluarController extends Controller
 {
@@ -30,10 +31,23 @@ class IzinKeluarController extends Controller
             return redirect()->back()->with('error', 'Siswa sudah ditandai keluar');
         }
 
-        $izinKeluar->update([
+        $request->validate([
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $data = [
             'jam_keluar_aktual' => now(),
             'dicatat_keluar_oleh' => auth()->id(),
-        ]);
+        ];
+
+        if ($request->hasFile('foto')) {
+            if ($izinKeluar->foto_keluar_path) {
+                Storage::disk('public')->delete($izinKeluar->foto_keluar_path);
+            }
+            $data['foto_keluar_path'] = $request->file('foto')->store('bukti-keluar', 'public');
+        }
+
+        $izinKeluar->update($data);
 
         // Create log gerbang
         LogGerbang::create([
@@ -56,10 +70,23 @@ class IzinKeluarController extends Controller
             return redirect()->back()->with('error', 'Siswa sudah ditandai kembali');
         }
 
-        $izinKeluar->update([
+        $request->validate([
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $data = [
             'jam_kembali_aktual' => now(),
             'dicatat_kembali_oleh' => auth()->id(),
-        ]);
+        ];
+
+        if ($request->hasFile('foto')) {
+            if ($izinKeluar->foto_kembali_path) {
+                Storage::disk('public')->delete($izinKeluar->foto_kembali_path);
+            }
+            $data['foto_kembali_path'] = $request->file('foto')->store('bukti-keluar', 'public');
+        }
+
+        $izinKeluar->update($data);
 
         // Create log gerbang
         LogGerbang::create([

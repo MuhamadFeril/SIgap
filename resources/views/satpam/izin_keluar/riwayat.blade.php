@@ -308,6 +308,7 @@
                                 <th>Alasan</th>
                                 <th>Status</th>
                                 <th>Waktu Sebenarnya</th>
+                                <th>Bukti Foto</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -349,10 +350,25 @@
                                             <small class="text-muted">-</small>
                                         @endif
                                     </td>
+                                    <td>
+                                        @if($izin->foto_keluar_path)
+                                            <a href="{{ asset('storage/' . $izin->foto_keluar_path) }}" target="_blank" title="Foto saat keluar">
+                                                <img src="{{ asset('storage/' . $izin->foto_keluar_path) }}" alt="Bukti keluar" width="48" height="48" style="object-fit:cover;border-radius:8px;" class="me-1">
+                                            </a>
+                                        @endif
+                                        @if($izin->foto_kembali_path)
+                                            <a href="{{ asset('storage/' . $izin->foto_kembali_path) }}" target="_blank" title="Foto saat kembali">
+                                                <img src="{{ asset('storage/' . $izin->foto_kembali_path) }}" alt="Bukti kembali" width="48" height="48" style="object-fit:cover;border-radius:8px;">
+                                            </a>
+                                        @endif
+                                        @if(!$izin->foto_keluar_path && !$izin->foto_kembali_path)
+                                            <small class="text-muted">-</small>
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-4">
+                                    <td colspan="8" class="text-center py-4">
                                         <i class="bi bi-inbox" style="font-size: 32px; color: var(--ink-soft);"></i>
                                         <p class="mt-2 mb-0 text-muted">Tidak ada riwayat izin keluar</p>
                                     </td>

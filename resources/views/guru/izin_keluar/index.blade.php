@@ -321,7 +321,7 @@
                                             <td>{{ $izin->siswa?->kelas ?? '-' }}</td>
                                             <td>
                                                 @if($izin->siswa?->foto_profil_path)
-                                                    <img src="{{ asset('storage/' . $izin->siswa->foto_profil_path) }}" alt="Foto {{ $izin->siswa?->user?->name ?? 'siswa' }}" width="42" height="42" style="object-fit:cover;border-radius:50%;" class="me-2 mb-1">
+                                                    <img src="{{ asset('storage/' . $izin?->siswa?->foto_profil_path) }}" alt="Foto {{ $izin->siswa?->user?->name ?? 'siswa' }}" width="42" height="42" style="object-fit:cover;border-radius:50%;" class="me-2 mb-1">
                                                 @endif
                                                 @if($izin->bukti_path)
                                                     @php($buktiVideo = in_array(strtolower(pathinfo($izin->bukti_path, PATHINFO_EXTENSION)), ['mp4', 'mov', 'webm']))

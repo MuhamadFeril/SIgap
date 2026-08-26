@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\GuruController as AdminGuruController;
 use App\Http\Controllers\Admin\SiswaController as AdminSiswaController;
 use App\Http\Controllers\Admin\SatpamController as AdminSatpamController;
+use App\Http\Controllers\Admin\JadwalSatpamController as AdminJadwalSatpamController;
 use App\Http\Controllers\Siswa\AuthController as SiswaAuthController;
 use App\Http\Controllers\Siswa\DashboardController as SiswaDashboardController;
 use App\Http\Controllers\Siswa\PortalController as SiswaPortalController;
@@ -88,6 +89,16 @@ Route::prefix('admin')->name('admin.')->group(function() {
             Route::put('/{satpam}', [AdminSatpamController::class, 'update'])->name('update');
             Route::delete('/{satpam}', [AdminSatpamController::class, 'destroy'])->name('destroy');
         });
+
+        // Jadwal Satpam management routes
+        Route::prefix('jadwal')->name('jadwal.')->group(function () {
+            Route::get('/', [AdminJadwalSatpamController::class, 'index'])->name('index');
+            Route::get('/create', [AdminJadwalSatpamController::class, 'create'])->name('create');
+            Route::post('/', [AdminJadwalSatpamController::class, 'store'])->name('store');
+            Route::get('/{jadwalSatpam}/edit', [AdminJadwalSatpamController::class, 'edit'])->name('edit');
+            Route::put('/{jadwalSatpam}', [AdminJadwalSatpamController::class, 'update'])->name('update');
+            Route::delete('/{jadwalSatpam}', [AdminJadwalSatpamController::class, 'destroy'])->name('destroy');
+        });
     });
 });
 
@@ -115,11 +126,12 @@ Route::prefix('guru')->name('guru.')->group(function() {
     Route::middleware('auth')->group(function () {
         Route::middleware('role:guru')->group(function () {
             Route::get('dashboard', [GuruDashboardController::class, 'index'])->name('dashboard');
-            Route::prefix('izin-keluar')->name('izin_keluar.')->group(function () {
-                Route::get('/', [GuruIzinKeluarController::class, 'index'])->name('index');
-                Route::post('/{izinKeluar}/approve', [GuruIzinKeluarController::class, 'approve'])->name('approve');
-                Route::post('/{izinKeluar}/reject', [GuruIzinKeluarController::class, 'reject'])->name('reject');
-            });
+        Route::prefix('izin-keluar')->name('izin_keluar.')->group(function () {
+            Route::get('/', [GuruIzinKeluarController::class, 'index'])->name('index');
+            Route::get('/{izinKeluar}', [GuruIzinKeluarController::class, 'show'])->name('show');
+            Route::post('/{izinKeluar}/approve', [GuruIzinKeluarController::class, 'approve'])->name('approve');
+            Route::post('/{izinKeluar}/reject', [GuruIzinKeluarController::class, 'reject'])->name('reject');
+        });
         });
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
     });
@@ -130,6 +142,7 @@ Route::prefix('satpam')->name('satpam.')->group(function() {
     Route::middleware('auth')->group(function () {
         Route::middleware('role:satpam')->group(function () {
             Route::get('dashboard', [SatpamDashboardController::class, 'index'])->name('dashboard');
+            Route::post('presensi', [SatpamJadwalSatpamController::class, 'presensiHariIni'])->name('presensi');
 
             // Izin Keluar routes
             Route::prefix('izin-keluar')->name('izin_keluar.')->group(function () {

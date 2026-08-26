@@ -26,6 +26,8 @@ class IzinKeluar extends Model
         'waktu_keputusan',
         'jam_keluar_aktual',
         'jam_kembali_aktual',
+        'foto_keluar_path',
+        'foto_kembali_path',
         'dicatat_keluar_oleh',
         'dicatat_kembali_oleh',
     ];

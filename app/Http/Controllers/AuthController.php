@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Siswa;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,15 +25,23 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
+            'nis' => 'required|string|max:50|unique:siswa,nis',
+            'kelas' => 'required|string|max:20',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => 'siswa',
             'status' => 'aktif',
+        ]);
+
+        Siswa::create([
+            'user_id' => $user->id,
+            'nis' => $validated['nis'],
+            'kelas' => $validated['kelas'],
         ]);
 
         return redirect()

@@ -24,6 +24,7 @@ class JadwalSatpam extends Model
         'jam_pulang',
         'waktu_masuk',
         'waktu_pulang',
+        'telat_masuk',
     ];
 
     protected $casts = [
@@ -32,6 +33,7 @@ class JadwalSatpam extends Model
         'jam_pulang' => 'datetime',
         'waktu_masuk' => 'datetime',
         'waktu_pulang' => 'datetime',
+        'telat_masuk' => 'boolean',
     ];
 
     public function satpam(): BelongsTo

@@ -57,7 +57,7 @@ class IzinKeluarController extends Controller
         $request->validate([
             'alasan' => 'required|string|max:100',
             'deskripsi' => 'nullable|string',
-            'bukti' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'bukti' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'jam_keluar_rencana' => 'required|date_format:H:i',
         ]);
 

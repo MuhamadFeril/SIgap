@@ -94,6 +94,80 @@ class JadwalSatpamController extends Controller
         return redirect()->back()->with('success', 'Presensi pulang berhasil');
     }
 
+    public function presensiHariIni(Request $request)
+    {
+        $satpam = $this->currentSatpam();
+
+        if (!$satpam) {
+            return $this->missingSatpamRedirect();
+        }
+
+        $jadwal = JadwalSatpam::where('satpam_id', $satpam->id)
+            ->whereDate('tanggal', today())
+            ->orderByDesc('id')
+            ->first();
+
+        if (!$jadwal) {
+            $jadwal = JadwalSatpam::create([
+                'satpam_id' => $satpam->id,
+                'tanggal' => today(),
+                'shift' => 'pagi',
+                'status_hadir' => 'belum_presensi',
+            ]);
+        }
+
+        $state = 'selesai';
+        $message = 'Anda sudah presensi masuk dan pulang hari ini';
+
+        if (!$jadwal->waktu_masuk) {
+            $waktuMasuk = now();
+            $telat = $jadwal->jam_masuk
+                ? $waktuMasuk->gt($jadwal->jam_masuk)
+                : false;
+
+            $jadwal->update([
+                'waktu_masuk' => $waktuMasuk,
+                'status_hadir' => 'hadir',
+                'telat_masuk' => $telat,
+            ]);
+            $state = 'masuk';
+            $message = $telat
+                ? 'Presensi masuk berhasil, tetapi Anda telat'
+                : 'Presensi masuk berhasil';
+        } elseif (!$jadwal->waktu_pulang) {
+            if ($jadwal->jam_pulang && now()->lt($jadwal->jam_pulang)) {
+                $message = 'Belum waktunya presensi pulang (jam pulang ' . $jadwal->jam_pulang->format('H:i') . ')';
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => $message]);
+                }
+                return redirect()->back()->with('error', $message);
+            }
+
+            $jadwal->update([
+                'waktu_pulang' => now(),
+            ]);
+            $state = 'pulang';
+            $message = 'Presensi pulang berhasil';
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'state' => $state,
+                'status_hadir' => $jadwal->status_hadir,
+                'telat_masuk' => $jadwal->telat_masuk,
+                'waktu_masuk' => $jadwal->waktu_masuk?->format('H:i'),
+                'waktu_pulang' => $jadwal->waktu_pulang?->format('H:i'),
+            ]);
+        }
+
+        return redirect()->back()->with(
+            $state === 'selesai' ? 'info' : 'success',
+            $message
+        );
+    }
+
     public function riwayat()
     {
         $satpam = $this->currentSatpam();

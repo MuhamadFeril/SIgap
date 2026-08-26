@@ -359,10 +359,10 @@
                     <div class="content-card-body">
                         <div class="profile-header">
                             <div class="profile-avatar">
-                                {{ substr($satpam->user->name, 0, 1) }}
+                                {{ substr($satpam?->user?->name, 0, 1) }}
                             </div>
                             <div class="profile-info">
-                                <h3>{{ $satpam->user->name }}</h3>
+                                <h3>{{ $satpam?->user?->name }}</h3>
                                 <p>NIP: {{ $satpam->nip }}</p>
                             </div>
                         </div>
@@ -374,7 +374,7 @@
 
                         <div class="detail-row">
                             <div class="detail-label">Email</div>
-                            <div class="detail-value">{{ $satpam->user->email }}</div>
+                            <div class="detail-value">{{ $satpam?->user?->email }}</div>
                         </div>
 
                         <div class="detail-row">
@@ -385,7 +385,7 @@
                         <div class="detail-row">
                             <div class="detail-label">Status</div>
                             <div class="detail-value">
-                                @if($satpam->user->status == 'aktif')
+                                @if($satpam?->user?->status == 'aktif')
                                     <span class="badge badge-success">Aktif</span>
                                 @else
                                     <span class="badge badge-danger">Nonaktif</span>
@@ -395,7 +395,7 @@
 
                         <div class="detail-row">
                             <div class="detail-label">Tanggal Dibuat</div>
-                            <div class="detail-value">{{ $satpam->user->created_at->format('d F Y H:i') }}</div>
+                            <div class="detail-value">{{ $satpam?->user?->created_at->format('d F Y H:i') }}</div>
                         </div>
                     </div>
                 </div>
