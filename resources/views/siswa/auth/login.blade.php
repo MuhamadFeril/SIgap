@@ -413,6 +413,13 @@
                 <p>Masuk dengan akun siswa Anda untuk mengelola izin keluar.</p>
             </div>
 
+            @if (session('error'))
+                <div class="alert-error">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <div>{{ session('error') }}</div>
+                </div>
+            @endif
+
             @if ($errors->any())
                 <div class="alert-error">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -424,14 +431,14 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('siswa.login') }}">
+            <form method="POST" action="{{ route('login.submit') }}">
                 @csrf
                 <div class="form-group">
-                    <label for="email" class="form-label">Email</label>
+                    <label for="email" class="form-label">Email / NIS</label>
                     <div class="input-wrap">
-                        <input type="email" class="form-control" id="email" name="email"
+                        <input type="text" class="form-control" id="email" name="email"
                                value="{{ old('email') }}" required autofocus
-                               placeholder="siswa@sekolah.com">
+                               placeholder="siswa@sekolah.com atau NIS">
                     </div>
                 </div>
 

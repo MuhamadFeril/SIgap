@@ -1,408 +1,152 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Satpam — SIGAP</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@extends('layouts.app')
 
-        :root {
-            --theme-color: #153f37;
-            --theme-light: #1e5a4d;
-            --theme-bg: #e4f0ea;
-            --amber: #c9821e;
-            --ink: #182421;
-            --ink-soft: #4b5b56;
-            --surface: #ffffff;
-            --paper: #f1f4f2;
-            --line: #dce3df;
-            --terracotta: #ae4e37;
-        }
+@section('title', 'Detail Satpam')
+@section('user-role', 'Admin Sekolah')
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--paper);
-            color: var(--ink);
-        }
+@section('sidebar')
+    <li>
+        <a href="{{ route('admin.dashboard') }}">
+            <i class="bi bi-grid-fill"></i> Dashboard
+        </a>
+    </li>
+    <li>
+        <a href="{{ route('admin.guru.index') }}">
+            <i class="bi bi-person-badge"></i> Guru
+        </a>
+    </li>
+    <li>
+        <a href="{{ route('admin.siswa.index') }}">
+            <i class="bi bi-people"></i> Siswa
+        </a>
+    </li>
+    <li>
+        <a href="{{ route('admin.satpam.index') }}" class="active">
+            <i class="bi bi-shield-check"></i> Satpam
+        </a>
+    </li>
+    <li>
+        <a href="{{ route('admin.jadwal.index') }}">
+            <i class="bi bi-calendar-check"></i> Jadwal
+        </a>
+    </li>
+    <li>
+        <a href="{{ route('admin.tukar_shift.index') }}">
+            <i class="bi bi-arrow-left-right"></i> Tukar Shift
+        </a>
+    </li>
+@endsection
 
-        .navbar {
-            background: var(--theme-color) !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .navbar-brand {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            color: #fff !important;
-            letter-spacing: -0.02em;
-        }
-
-        .nav-link {
-            color: rgba(255,255,255,0.85) !important;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            color: #fff !important;
-        }
-
-        .sidebar {
-            background: var(--surface);
-            border-right: 1px solid var(--line);
-            min-height: calc(100vh - 56px);
-            padding: 24px 0;
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .sidebar-menu li {
-            margin-bottom: 4px;
-        }
-
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 24px;
-            color: var(--ink-soft);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
-        }
-
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background: var(--theme-bg);
-            color: var(--theme-color);
-            border-left-color: var(--theme-color);
-        }
-
-        .sidebar-menu i {
-            font-size: 18px;
-        }
-
-        .content-card {
-            background: var(--surface);
-            border-radius: 16px;
-            border: 1px solid var(--line);
-            overflow: hidden;
-        }
-
-        .content-card-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--line);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .content-card-header h5 {
-            margin: 0;
-            font-weight: 600;
-            color: var(--ink);
-        }
-
-        .content-card-body {
-            padding: 24px;
-        }
-
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        .profile-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: var(--theme-color);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 32px;
-        }
-
-        .profile-info h3 {
-            margin: 0 0 8px 0;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            color: var(--ink);
-        }
-
-        .profile-info p {
-            margin: 0;
-            color: var(--ink-soft);
-        }
-
-        .detail-row {
-            display: flex;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .detail-row:last-child {
-            border-bottom: none;
-        }
-
-        .detail-label {
-            width: 200px;
-            font-weight: 600;
-            color: var(--ink-soft);
-            font-size: 14px;
-        }
-
-        .detail-value {
-            flex: 1;
-            color: var(--ink);
-            font-size: 14px;
-        }
-
-        .badge {
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 12px;
-        }
-
-        .badge-success {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .badge-danger {
-            background: #fdf3f1;
-            color: #ae4e37;
-        }
-
-        .btn-primary {
-            background: var(--theme-color);
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-
-        .btn-primary:hover {
-            background: var(--theme-light);
-        }
-
-        .btn-secondary {
-            background: var(--ink-soft);
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-
-        .btn-secondary:hover {
-            background: var(--ink);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--theme-color);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .user-details {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .user-name {
-            font-weight: 600;
-            color: var(--ink);
-        }
-
-        .user-role {
-            font-size: 12px;
-            color: var(--ink-soft);
-        }
-
-        .btn-logout {
-            background: rgba(255,255,255,0.15);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .btn-logout:hover {
-            background: rgba(255,255,255,0.25);
-            color: #fff;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <span style="color: var(--amber); font-weight: 700;">/</span> SIGAP
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('admin.dashboard') }}">
-                            <i class="bi bi-grid-fill"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('admin.guru.index') }}">
-                            <i class="bi bi-person-badge"></i> Guru
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('admin.siswa.index') }}">
-                            <i class="bi bi-people"></i> Siswa
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('admin.satpam.index') }}">
-                            <i class="bi bi-shield-check"></i> Satpam
-                        </a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center gap-3">
-                    <div class="user-info">
-                        <div class="user-avatar">
-                            {{ substr(Auth::user()->name, 0, 1) }}
-                        </div>
-                        <div class="user-details">
-                            <span class="user-name">{{ Auth::user()->name }}</span>
-                            <span class="user-role">Admin</span>
-                        </div>
-                    </div>
-                    <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
-                        @csrf
-                    </form>
-                    <button type="submit" form="logout-form" class="btn-logout">
-                        <i class="bi bi-box-arrow-right"></i> Keluar
-                    </button>
-                </div>
+@section('content')
+    <div class="content-card">
+        <div class="content-card-header">
+            <h5>Detail Satpam</h5>
+            <div>
+                <a href="{{ route('admin.satpam.edit', $satpam) }}" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Edit
+                </a>
+                <a href="{{ route('admin.satpam.index') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Kembali
+                </a>
             </div>
         </div>
-    </nav>
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-2 sidebar">
-                <ul class="sidebar-menu">
-                    <li>
-                        <a href="{{ route('admin.dashboard') }}">
-                            <i class="bi bi-grid-fill"></i> Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.guru.index') }}">
-                            <i class="bi bi-person-badge"></i> Guru
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.siswa.index') }}">
-                            <i class="bi bi-people"></i> Siswa
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.satpam.index') }}" class="active">
-                            <i class="bi bi-shield-check"></i> Satpam
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="col-md-10 p-4">
-                <div class="content-card">
-                    <div class="content-card-header">
-                        <h5>Detail Satpam</h5>
-                        <div>
-                            <a href="{{ route('admin.satpam.edit', $satpam) }}" class="btn btn-primary">
-                                <i class="bi bi-pencil"></i> Edit
-                            </a>
-                            <a href="{{ route('admin.satpam.index') }}" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Kembali
-                            </a>
-                        </div>
-                    </div>
-                    <div class="content-card-body">
-                        <div class="profile-header">
-                            <div class="profile-avatar">
-                                {{ substr($satpam?->user?->name, 0, 1) }}
-                            </div>
-                            <div class="profile-info">
-                                <h3>{{ $satpam?->user?->name }}</h3>
-                                <p>NIP: {{ $satpam->nip }}</p>
-                            </div>
-                        </div>
-
-                        <div class="detail-row">
-                            <div class="detail-label">NIP</div>
-                            <div class="detail-value">{{ $satpam->nip }}</div>
-                        </div>
-
-                        <div class="detail-row">
-                            <div class="detail-label">Email</div>
-                            <div class="detail-value">{{ $satpam?->user?->email }}</div>
-                        </div>
-
-                        <div class="detail-row">
-                            <div class="detail-label">No. Telepon</div>
-                            <div class="detail-value">{{ $satpam->no_telepon ?? '-' }}</div>
-                        </div>
-
-                        <div class="detail-row">
-                            <div class="detail-label">Status</div>
-                            <div class="detail-value">
-                                @if($satpam?->user?->status == 'aktif')
-                                    <span class="badge badge-success">Aktif</span>
-                                @else
-                                    <span class="badge badge-danger">Nonaktif</span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="detail-row">
-                            <div class="detail-label">Tanggal Dibuat</div>
-                            <div class="detail-value">{{ $satpam?->user?->created_at->format('d F Y H:i') }}</div>
-                        </div>
-                    </div>
+        <div class="content-card-body">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    {{ substr($satpam?->user?->name, 0, 1) }}
                 </div>
+                <div class="profile-info">
+                    <h3>{{ $satpam?->user?->name }}</h3>
+                    <p>NIP: {{ $satpam->nip }}</p>
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">NIP</div>
+                <div class="detail-value">{{ $satpam->nip }}</div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Email</div>
+                <div class="detail-value">{{ $satpam?->user?->email }}</div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">No. Telepon</div>
+                <div class="detail-value">{{ $satpam->no_telepon ?? '-' }}</div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Status</div>
+                <div class="detail-value">
+                    @if($satpam?->user?->status == 'aktif')
+                        <span class="badge badge-success">Aktif</span>
+                    @else
+                        <span class="badge badge-danger">Nonaktif</span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Tanggal Dibuat</div>
+                <div class="detail-value">{{ $satpam?->user?->created_at->format('d F Y H:i') }}</div>
             </div>
         </div>
     </div>
+@endsection
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+@section('styles')
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--pine);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 32px;
+    }
+
+    .profile-info h3 {
+        margin: 0 0 8px 0;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        color: var(--ink);
+    }
+
+    .profile-info p {
+        margin: 0;
+        color: var(--ink-soft);
+    }
+
+    .detail-row {
+        display: flex;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        width: 200px;
+        font-weight: 600;
+        color: var(--ink-soft);
+        font-size: 14px;
+    }
+
+    .detail-value {
+        flex: 1;
+        color: var(--ink);
+        font-size: 14px;
+    }
+@endsection

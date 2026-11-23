@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\GuruController as AdminGuruController;
 use App\Http\Controllers\Admin\SiswaController as AdminSiswaController;
 use App\Http\Controllers\Admin\SatpamController as AdminSatpamController;
 use App\Http\Controllers\Admin\JadwalSatpamController as AdminJadwalSatpamController;
+use App\Http\Controllers\Admin\TukarShiftController as AdminTukarShiftController;
 use App\Http\Controllers\Siswa\AuthController as SiswaAuthController;
 use App\Http\Controllers\Siswa\DashboardController as SiswaDashboardController;
 use App\Http\Controllers\Siswa\PortalController as SiswaPortalController;
@@ -31,9 +32,16 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
     Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
+
+    // Legacy role-specific login route aliases
+    Route::get('/login/siswa', fn () => redirect()->route('login'))->name('siswa.login');
+    Route::get('/login/guru', fn () => redirect()->route('login'))->name('guru.login');
+    Route::get('/login/satpam', fn () => redirect()->route('login'))->name('satpam.login');
 });
 
-Route::middleware(['auth', 'role:user'])->group(function () {
+// NOTE: role 'user' tidak digunakan lagi — semua siswa pakai role 'siswa' dan route siswa.dashboard
+// Route ini dipertahankan hanya sebagai fallback agar tidak error jika ada data lama
+Route::middleware(['auth', 'role:siswa'])->group(function () {
     Route::get('/dashboard', [SiswaPortalController::class, 'index'])->name('user.dashboard');
     Route::post('/dashboard/izin', [SiswaPortalController::class, 'store'])->name('user.izin.store');
     Route::patch('/dashboard/profil', [SiswaPortalController::class, 'updateProfile'])->name('user.profile.update');
@@ -51,10 +59,8 @@ Route::prefix('admin')->name('admin.')->group(function() {
         Route::post('register', [AuthController::class, 'register']);
     });
 
-    Route::middleware('auth')->group(function () {
-        Route::middleware('role:admin')->group(function () {
-            Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-        });
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+        Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
 
         // Guru management routes
@@ -99,6 +105,14 @@ Route::prefix('admin')->name('admin.')->group(function() {
             Route::put('/{jadwalSatpam}', [AdminJadwalSatpamController::class, 'update'])->name('update');
             Route::delete('/{jadwalSatpam}', [AdminJadwalSatpamController::class, 'destroy'])->name('destroy');
         });
+
+        // Tukar Shift management routes
+        Route::prefix('tukar-shift')->name('tukar_shift.')->group(function () {
+            Route::get('/', [AdminTukarShiftController::class, 'index'])->name('index');
+            Route::get('/{tukarShift}', [AdminTukarShiftController::class, 'show'])->name('show');
+            Route::post('/{tukarShift}/approve', [AdminTukarShiftController::class, 'approve'])->name('approve');
+            Route::post('/{tukarShift}/reject', [AdminTukarShiftController::class, 'reject'])->name('reject');
+        });
     });
 });
 
@@ -129,6 +143,8 @@ Route::prefix('guru')->name('guru.')->group(function() {
         Route::prefix('izin-keluar')->name('izin_keluar.')->group(function () {
             Route::get('/', [GuruIzinKeluarController::class, 'index'])->name('index');
             Route::get('/{izinKeluar}', [GuruIzinKeluarController::class, 'show'])->name('show');
+            Route::get('/{izinKeluar}/edit', [GuruIzinKeluarController::class, 'edit'])->name('edit');
+            Route::put('/{izinKeluar}', [GuruIzinKeluarController::class, 'update'])->name('update');
             Route::post('/{izinKeluar}/approve', [GuruIzinKeluarController::class, 'approve'])->name('approve');
             Route::post('/{izinKeluar}/reject', [GuruIzinKeluarController::class, 'reject'])->name('reject');
         });
@@ -147,10 +163,11 @@ Route::prefix('satpam')->name('satpam.')->group(function() {
             // Izin Keluar routes
             Route::prefix('izin-keluar')->name('izin_keluar.')->group(function () {
                 Route::get('/', [SatpamIzinKeluarController::class, 'index'])->name('index');
-                Route::post('/{izinKeluar}/tandai-keluar', [SatpamIzinKeluarController::class, 'tandaiKeluar'])->name('tandai_keluar');
-                Route::post('/{izinKeluar}/tandai-kembali', [SatpamIzinKeluarController::class, 'tandaiKembali'])->name('tandai_kembali');
                 Route::get('/keluar-hari-ini', [SatpamIzinKeluarController::class, 'keluarHariIni'])->name('keluar_hari_ini');
                 Route::get('/riwayat', [SatpamIzinKeluarController::class, 'riwayat'])->name('riwayat');
+                Route::get('/{izinKeluar}', [SatpamIzinKeluarController::class, 'show'])->name('show');
+                Route::post('/{izinKeluar}/tandai-keluar', [SatpamIzinKeluarController::class, 'tandaiKeluar'])->name('tandai_keluar');
+                Route::post('/{izinKeluar}/tandai-kembali', [SatpamIzinKeluarController::class, 'tandaiKembali'])->name('tandai_kembali');
             });
 
             // Jadwal Satpam routes

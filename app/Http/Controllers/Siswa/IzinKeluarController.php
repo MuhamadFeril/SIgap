@@ -59,6 +59,7 @@ class IzinKeluarController extends Controller
             'deskripsi' => 'nullable|string',
             'bukti' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'jam_keluar_rencana' => 'required|date_format:H:i',
+            'jam_kembali_rencana' => 'required|date_format:H:i|after:jam_keluar_rencana',
         ]);
 
         $buktiPath = null;
@@ -73,6 +74,7 @@ class IzinKeluarController extends Controller
             'deskripsi' => $request->deskripsi,
             'bukti_path' => $buktiPath,
             'jam_keluar_rencana' => $request->jam_keluar_rencana,
+            'jam_kembali_rencana' => $request->jam_kembali_rencana,
             'status' => 'pending',
         ]);
 

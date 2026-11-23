@@ -52,24 +52,55 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validated = $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|string',
             'password' => 'required|string',
+        ], [
+            'email.required' => 'Email, NIS, atau NIP wajib diisi.',
+            'password.required' => 'Kata sandi wajib diisi.',
         ]);
 
-        $credentials = [
-            'email' => $validated['email'],
-            'password' => $validated['password'],
-        ];
-
+        $input = trim($validated['email']);
+        $password = $validated['password'];
         $remember = $request->boolean('remember');
+
+        // Cari user berdasarkan Email, NIS (Siswa), atau NIP (Guru/Satpam)
+        $user = User::where('email', $input)->first();
+
+        if (!$user) {
+            $siswa = Siswa::where('nis', $input)->first();
+            if ($siswa && $siswa->user) {
+                $user = $siswa->user;
+            }
+        }
+
+        if (!$user) {
+            $guru = \App\Models\Guru::where('nip', $input)->first();
+            if ($guru && $guru->user) {
+                $user = $guru->user;
+            }
+        }
+
+        if (!$user) {
+            $satpam = \App\Models\Satpam::where('nip', $input)->first();
+            if ($satpam && $satpam->user) {
+                $user = $satpam->user;
+            }
+        }
+
+        $emailToAttempt = $user ? $user->email : $input;
+
+        $credentials = [
+            'email' => $emailToAttempt,
+            'password' => $password,
+        ];
 
         if (!Auth::attempt($credentials, $remember)) {
             return back()
                 ->withErrors([
-                    'email' => 'Email atau kata sandi yang Anda masukkan salah.',
+                    'email' => 'Email / NIS / NIP atau kata sandi yang Anda masukkan salah.',
                 ])
                 ->withInput([
-                    'email' => $request->email,
+                    'email' => $input,
                 ]);
         }
 
@@ -83,7 +114,7 @@ class AuthController extends Controller
                     'email' => 'Akun Anda tidak aktif. Silakan hubungi admin.',
                 ])
                 ->withInput([
-                    'email' => $request->email,
+                    'email' => $input,
                 ]);
         }
 
@@ -97,6 +128,7 @@ class AuthController extends Controller
                 return redirect()->route('guru.dashboard');
 
             case 'siswa':
+            case 'user': // legacy role — treat as siswa
                 return redirect()->route('siswa.dashboard');
 
             case 'satpam':

@@ -54,6 +54,11 @@
         </div>
 
         <div class="detail-row">
+            <div class="detail-label">Jam Kembali Rencana</div>
+            <div class="detail-value">{{ $izinKeluar->jam_kembali_rencana?->locale('id')->translatedFormat('d F Y H:i') ?? ($izinKeluar->jam_kembali_rencana?->format('H:i') ?? '-') }}</div>
+        </div>
+
+        <div class="detail-row">
             <div class="detail-label">Bukti (Siswa)</div>
             <div class="detail-value">
                 @if($izinKeluar->bukti_path)
@@ -101,6 +106,19 @@
                     @if($izinKeluar->dicatatKembaliOleh) <span class="text-muted">({{ $izinKeluar->dicatatKembaliOleh->name }})</span> @endif
                 @else
                     <span class="text-muted">Belum kembali</span>
+                @endif
+            </div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Status Keterlambatan</div>
+            <div class="detail-value">
+                @if(!$izinKeluar->jam_kembali_aktual)
+                    <span class="badge badge-warning">Belum Kembali</span>
+                @elseif($izinKeluar->terlambat)
+                    <span class="badge badge-danger">Telat</span>
+                @else
+                    <span class="badge badge-success">Tepat Waktu</span>
                 @endif
             </div>
         </div>

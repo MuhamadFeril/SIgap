@@ -21,10 +21,17 @@ class IzinKeluarController extends Controller
         return view('satpam.izin_keluar.index', compact('izinKeluar'));
     }
 
+    public function show(IzinKeluar $izinKeluar)
+    {
+        $izinKeluar->load('siswa.user', 'disetujuiOleh', 'dicatatKeluarOleh', 'dicatatKembaliOleh');
+
+        return view('satpam.izin_keluar.show', compact('izinKeluar'));
+    }
+
     public function tandaiKeluar(Request $request, IzinKeluar $izinKeluar)
     {
-        if ($izinKeluar->status !== 'approved') {
-            return redirect()->back()->with('error', 'Hanya izin yang disetujui yang bisa ditandai keluar');
+        if (!in_array($izinKeluar->status, [IzinKeluar::STATUS_APPROVED, IzinKeluar::STATUS_SAKIT])) {
+            return redirect()->back()->with('error', 'Hanya izin yang disetujui atau sakit yang bisa ditandai keluar');
         }
 
         if ($izinKeluar->jam_keluar_aktual) {
@@ -78,6 +85,9 @@ class IzinKeluarController extends Controller
             'jam_kembali_aktual' => now(),
             'dicatat_kembali_oleh' => auth()->id(),
         ];
+
+        $izinKeluar->jam_kembali_aktual = $data['jam_kembali_aktual'];
+        $data['terlambat'] = $izinKeluar->isTerlambat();
 
         if ($request->hasFile('foto')) {
             if ($izinKeluar->foto_kembali_path) {

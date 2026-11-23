@@ -14,22 +14,23 @@ class CheckRole
      *
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        if (Auth::user()->role !== $role) {
+        $userRole = Auth::user()->role;
+
+        if (!in_array($userRole, $roles)) {
             // Redirect to appropriate dashboard based on user's role
-            $userRole = Auth::user()->role;
             return match($userRole) {
-                'admin' => redirect()->route('admin.dashboard'),
-                'guru' => redirect()->route('guru.dashboard'),
-                'siswa' => redirect()->route('siswa.dashboard'),
+                'admin'  => redirect()->route('admin.dashboard'),
+                'guru'   => redirect()->route('guru.dashboard'),
+                'siswa'  => redirect()->route('siswa.dashboard'),
                 'satpam' => redirect()->route('satpam.dashboard'),
-                'user' => redirect()->route('user.dashboard'),
-                default => redirect()->route('landing'),
+                'user'   => redirect()->route('siswa.dashboard'), // legacy alias
+                default  => redirect()->route('landing'),
             };
         }
 

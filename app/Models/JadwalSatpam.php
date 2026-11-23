@@ -36,6 +36,42 @@ class JadwalSatpam extends Model
         'telat_masuk' => 'boolean',
     ];
 
+    public function getJamMasukAttribute($value)
+    {
+        if ($value) {
+            return \Carbon\Carbon::parse($value);
+        }
+        if (!$this->tanggal || !$this->shift) {
+            return null;
+        }
+        $times = [
+            'pagi'  => '07:00:00',
+            'siang' => '15:00:00',
+            'malam' => '23:00:00',
+        ];
+        $time = $times[strtolower($this->shift)] ?? null;
+        return $time ? \Carbon\Carbon::parse($this->tanggal->format('Y-m-d') . ' ' . $time) : null;
+    }
+
+    public function getJamPulangAttribute($value)
+    {
+        if ($value) {
+            return \Carbon\Carbon::parse($value);
+        }
+        if (!$this->tanggal || !$this->shift) {
+            return null;
+        }
+        $shift = strtolower($this->shift);
+        if ($shift === 'pagi') {
+            return \Carbon\Carbon::parse($this->tanggal->format('Y-m-d') . ' 15:00:00');
+        } elseif ($shift === 'siang') {
+            return \Carbon\Carbon::parse($this->tanggal->format('Y-m-d') . ' 23:00:00');
+        } elseif ($shift === 'malam') {
+            return \Carbon\Carbon::parse($this->tanggal->format('Y-m-d') . ' 07:00:00')->addDay();
+        }
+        return null;
+    }
+
     public function satpam(): BelongsTo
     {
         return $this->belongsTo(Satpam::class);

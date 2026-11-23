@@ -319,6 +319,13 @@
 
 
 
+            @if (session('error'))
+                <div class="alert-error">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <div>{{ session('error') }}</div>
+                </div>
+            @endif
+
             @if ($errors->any())
                 <div class="alert-error">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -330,7 +337,7 @@
                 </div>
             @endif
             
-            <form method="POST" action="{{ url('/login/siswa') }}">
+            <form method="POST" action="{{ url('/login') }}">
                 @csrf
                 <div class="form-group">
                     <label for="email" class="form-label">Email / NIS</label>

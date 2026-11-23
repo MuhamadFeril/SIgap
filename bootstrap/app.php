@@ -15,6 +15,20 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(function (Request $request) {
             return route('login');
         });
+        $middleware->redirectUsersTo(function (Request $request) {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            if (!$user) {
+                return route('login');
+            }
+            return match($user->role) {
+                'admin' => route('admin.dashboard'),
+                'guru' => route('guru.dashboard'),
+                'siswa' => route('siswa.dashboard'),
+                'satpam' => route('satpam.dashboard'),
+                'user' => route('siswa.dashboard'), // legacy alias
+                default => route('landing'),
+            };
+        });
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);

@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('guru123'),
                 'role'     => 'guru',
                 'status'   => 'aktif',
-            ]
+            ]   
         );
 
         Guru::firstOrCreate(
@@ -114,11 +114,11 @@ class DatabaseSeeder extends Seeder
 
         // ─── 6. Jadwal Satpam (hari ini & mendatang) ──────────────────────────
         $jadwalData = [
-            ['satpam_id' => $satpam1->id, 'tanggal' => now()->toDateString(),          'shift' => 'pagi',  'status_hadir' => 'hadir',           'jam_masuk' => now()->setTime(7, 0), 'waktu_masuk' => now()->setTime(7, 5)],
-            ['satpam_id' => $satpam1->id, 'tanggal' => now()->addDay()->toDateString(), 'shift' => 'siang', 'status_hadir' => 'belum_presensi',  'jam_masuk' => null],
-            ['satpam_id' => $satpam1->id, 'tanggal' => now()->addDays(2)->toDateString(),'shift' => 'malam', 'status_hadir' => 'belum_presensi', 'jam_masuk' => null],
-            ['satpam_id' => $satpam2->id, 'tanggal' => now()->toDateString(),          'shift' => 'siang', 'status_hadir' => 'belum_presensi',  'jam_masuk' => null],
-            ['satpam_id' => $satpam2->id, 'tanggal' => now()->addDay()->toDateString(), 'shift' => 'pagi',  'status_hadir' => 'belum_presensi', 'jam_masuk' => null],
+            ['satpam_id' => $satpam1->id, 'tanggal' => now()->toDateString(),          'shift' => 'pagi',  'status_hadir' => 'hadir',           'jam_masuk' => now()->setTime(7, 0),  'jam_pulang' => now()->setTime(15, 0), 'waktu_masuk' => now()->setTime(7, 5)],
+            ['satpam_id' => $satpam1->id, 'tanggal' => now()->addDay()->toDateString(), 'shift' => 'siang', 'status_hadir' => 'belum_presensi',  'jam_masuk' => now()->addDay()->setTime(15, 0), 'jam_pulang' => now()->addDay()->setTime(23, 0)],
+            ['satpam_id' => $satpam1->id, 'tanggal' => now()->addDays(2)->toDateString(),'shift' => 'malam', 'status_hadir' => 'belum_presensi', 'jam_masuk' => now()->addDays(2)->setTime(23, 0), 'jam_pulang' => now()->addDays(3)->setTime(7, 0)],
+            ['satpam_id' => $satpam2->id, 'tanggal' => now()->toDateString(),          'shift' => 'siang', 'status_hadir' => 'belum_presensi',  'jam_masuk' => now()->setTime(15, 0), 'jam_pulang' => now()->setTime(23, 0)],
+            ['satpam_id' => $satpam2->id, 'tanggal' => now()->addDay()->toDateString(), 'shift' => 'pagi',  'status_hadir' => 'belum_presensi', 'jam_masuk' => now()->addDay()->setTime(7, 0), 'jam_pulang' => now()->addDay()->setTime(15, 0)],
         ];
 
         foreach ($jadwalData as $j) {
@@ -131,6 +131,8 @@ class DatabaseSeeder extends Seeder
                 [
                     'status_hadir' => $j['status_hadir'],
                     'jam_masuk'    => $j['jam_masuk'],
+                    'jam_pulang'   => $j['jam_pulang'] ?? null,
+                    'waktu_masuk'  => $j['waktu_masuk'] ?? null,
                 ]
             );
         }

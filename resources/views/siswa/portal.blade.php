@@ -1,34 +1,23 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Siswa - SIGAP</title>
+@extends('layouts.app')
+
+@section('title', 'Portal Siswa')
+@section('user-role', $siswa?->kelas ?? 'Siswa')
+
+@section('sidebar')
+    <li>
+        <a href="{{ route('siswa.dashboard') }}" class="active">
+            <i class="bi bi-grid-fill"></i> Dashboard
+        </a>
+    </li>
+    <li>
+        <a href="{{ route('siswa.izin_keluar.index') }}">
+            <i class="bi bi-box-arrow-right"></i> Izin Keluar
+        </a>
+    </li>
+@endsection
+
+@section('styles')
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@600&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');
-
-        :root {
-            --pine: #153f37;
-            --pine-soft: #1e5a4d;
-            --ink: #182421;
-            --soft: #4b5b56;
-            --paper: #f1f4f2;
-            --surface: #ffffff;
-            --line: #d9e1dc;
-            --amber: #c9821e;
-            --danger: #a33d2c;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: var(--paper);
-            color: var(--ink);
-            font-family: Inter, sans-serif;
-        }
-
         .page {
             width: min(1180px, calc(100% - 32px));
             margin: 0 auto;
@@ -58,49 +47,9 @@
         .lead {
             max-width: 660px;
             margin: 0;
-            color: var(--soft);
+            color: var(--ink-soft);
             font-size: 16px;
             line-height: 1.6;
-        }
-
-        .profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-
-        .avatar {
-            width: 48px;
-            height: 48px;
-            display: grid;
-            place-items: center;
-            overflow: hidden;
-            border-radius: 50%;
-            background: #dcece5;
-            color: var(--pine);
-            font: 700 18px 'Space Grotesk', sans-serif;
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .profile-name { font-weight: 700; }
-        .profile-role { margin-top: 3px; color: var(--soft); font-size: 13px; }
-
-        .logout,
-        .secondary-button {
-            min-height: 42px;
-            border: 1px solid var(--line);
-            border-radius: 8px;
-            padding: 10px 16px;
-            background: var(--surface);
-            color: var(--soft);
-            cursor: pointer;
-            font: 700 14px Inter, sans-serif;
         }
 
         .card,
@@ -170,7 +119,7 @@
 
         input[readonly] {
             background: #f7f9f8;
-            color: var(--soft);
+            color: var(--ink-soft);
         }
 
         input[type="file"] {
@@ -195,7 +144,7 @@
             padding: 12px 14px;
             border-radius: 8px;
             background: var(--paper);
-            color: var(--soft);
+            color: var(--ink-soft);
             font-size: 14px;
             line-height: 1.5;
         }
@@ -204,7 +153,7 @@
             margin: 0 0 18px;
             padding: 13px 15px;
             border-radius: 8px;
-            color: var(--danger);
+            color: var(--terracotta);
             background: #fdf3f1;
             font-weight: 600;
         }
@@ -226,7 +175,7 @@
         }
 
         button[type="submit"]:not(.logout):hover {
-            background: var(--pine-soft);
+            background: var(--pine-light);
         }
 
         .table-wrap {
@@ -242,7 +191,7 @@
         th {
             padding: 14px 18px;
             background: var(--paper);
-            color: var(--soft);
+            color: var(--ink-soft);
             text-align: left;
             font-size: 12px;
             letter-spacing: .05em;
@@ -272,7 +221,6 @@
         .pending { color: #9a660d; background: #fff0cf; }
         .approved { color: #147356; background: #dff4eb; }
         .rejected { color: #a33d2c; background: #fbe4df; }
-        .empty { padding: 30px 24px; color: var(--soft); text-align: center; }
 
         .actions {
             display: flex;
@@ -299,11 +247,6 @@
                 font-size: 14px;
             }
 
-            .profile-name,
-            .profile-role {
-                display: none;
-            }
-
             .grid {
                 grid-template-columns: 1fr;
                 gap: 0;
@@ -326,163 +269,151 @@
             }
         }
     </style>
-</head>
-<body>
-<main class="page">
-    <div class="top">
-        <div>
-            <div class="eyebrow">PORTAL SISWA</div>
-            <h1>Ajukan & pantau izin keluar</h1>
-            <p class="lead">Izin harus disetujui guru piket sebelum kamu boleh keluar gerbang.</p>
-        </div>
-        <div class="profile">
-            <div class="avatar" id="avatar-preview">
-                @if($siswa?->foto_profil_path)
-                    <img src="{{ asset('storage/' . $siswa->foto_profil_path) }}" alt="Foto profil {{ auth()->user()->name }}">
-                @else
-                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                @endif
-            </div>
+@endsection
+
+@section('content')
+    <div class="page">
+        <div class="top">
             <div>
-                <div class="profile-name">{{ auth()->user()->name }}</div>
-                <div class="profile-role">{{ $siswa?->kelas ?? 'Siswa' }}</div>
+                <div class="eyebrow">PORTAL SISWA</div>
+                <h1>Ajukan & pantau izin keluar</h1>
+                <p class="lead">Izin harus disetujui guru piket sebelum kamu boleh keluar gerbang.</p>
             </div>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button class="logout" type="submit">Keluar</button>
-            </form>
         </div>
-    </div>
 
-    <details class="profile-form" @if($errors->has('name') || $errors->has('email') || $errors->has('foto_profil')) open @endif>
-        <summary>Edit profil</summary>
-        <form method="POST" action="{{ route('user.profile.update') }}" enctype="multipart/form-data">
-            @csrf
-            @method('PATCH')
-            <div class="grid">
-                <div class="field">
-                    <label for="profile_name">Nama</label>
-                    <input id="profile_name" name="name" value="{{ old('name', auth()->user()->name) }}" required>
-                </div>
-                <div class="field">
-                    <label for="profile_email">Email</label>
-                    <input type="email" id="profile_email" name="email" value="{{ old('email', auth()->user()->email) }}" required>
-                </div>
-                <div class="field">
-                    <label for="profile_kelas">Kelas</label>
-                    <input id="profile_kelas" name="kelas" value="{{ old('kelas', $siswa?->kelas) }}" required>
-                </div>
-                <div class="field">
-                    <label for="foto_profil">Foto profil</label>
-                    <input type="file" id="foto_profil" name="foto_profil" accept="image/png,image/jpeg,image/webp">
-                </div>
-            </div>
-            <button type="submit">Simpan profil</button>
-        </form>
-    </details>
-
-    <section class="card">
-        <div class="card-title">Form pengajuan izin keluar</div>
-        <div class="card-body">
-            @if(session('success'))
-                <div class="alert success">{{ session('success') }}</div>
-            @endif
-            @if($errors->any())
-                <div class="alert">{{ $errors->first() }}</div>
-            @endif
-
-            <form method="POST" action="{{ route('user.izin.store') }}" enctype="multipart/form-data">
+        <details class="profile-form" @if($errors->has('name') || $errors->has('email') || $errors->has('foto_profil')) open @endif>
+            <summary>Edit profil</summary>
+            <form method="POST" action="{{ route('user.profile.update') }}" enctype="multipart/form-data">
                 @csrf
+                @method('PATCH')
                 <div class="grid">
                     <div class="field">
-                        <label for="kelas">Kelas</label>
-                        <input id="kelas" name="kelas" value="{{ old('kelas', $siswa?->kelas) }}" {{ $siswa ? 'readonly' : '' }} required placeholder="Contoh: XI RPL 2">
+                        <label for="profile_name">Nama</label>
+                        <input id="profile_name" name="name" value="{{ old('name', auth()->user()->name) }}" required>
                     </div>
                     <div class="field">
-                        <label for="jam_keluar_rencana">Jam keluar rencana</label>
-                        <input type="time" id="jam_keluar_rencana" name="jam_keluar_rencana" value="{{ old('jam_keluar_rencana') }}" required>
+                        <label for="profile_email">Email</label>
+                        <input type="email" id="profile_email" name="email" value="{{ old('email', auth()->user()->email) }}" required>
+                    </div>
+                    <div class="field">
+                        <label for="profile_kelas">Kelas</label>
+                        <input id="profile_kelas" name="kelas" value="{{ old('kelas', $siswa?->kelas) }}" required>
+                    </div>
+                    <div class="field">
+                        <label for="foto_profil">Foto profil</label>
+                        <input type="file" id="foto_profil" name="foto_profil" accept="image/png,image/jpeg,image/webp">
                     </div>
                 </div>
-
-                <div class="field">
-                    <label for="alasan">Alasan</label>
-                    <select id="alasan" name="alasan" required>
-                        <option value="" disabled {{ old('alasan') ? '' : 'selected' }}>Pilih alasan izin</option>
-                        @foreach(['Dijemput orang tua', 'Keperluan keluarga', 'Berobat', 'Lainnya'] as $alasan)
-                            <option value="{{ $alasan }}" @selected(old('alasan') === $alasan)>{{ $alasan }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="field" id="deskripsi-wrap" style="display: {{ old('alasan') === 'Lainnya' ? 'block' : 'none' }}">
-                    <label for="deskripsi">Jelaskan alasan izin</label>
-                    <input id="deskripsi" name="deskripsi" value="{{ old('deskripsi') }}" maxlength="500" placeholder="Tuliskan alasan izin secara singkat dan jelas">
-                    <p class="hint">Wajib diisi jika memilih alasan Lainnya.</p>
-                </div>
-
-                <div class="field">
-                    <label for="bukti">Foto atau video bukti izin</label>
-                    <input type="file" id="bukti" name="bukti" accept="image/png,image/jpeg,image/webp,video/mp4,video/quicktime,video/webm" required>
-                    <p class="hint">Wajib diisi. Foto atau video MP4, MOV, WEBM maksimal 20 MB.</p>
-                </div>
-
-                <div class="actions">
-                    <button type="submit">Ajukan izin</button>
-                    <p class="hint">Pengajuan akan masuk ke antrean guru piket. Kamu bisa pantau statusnya di riwayat bawah ini.</p>
-                </div>
+                <button type="submit">Simpan profil</button>
             </form>
-        </div>
-    </section>
+        </details>
 
-    <section class="card">
-        <div class="card-title">Riwayat izin saya</div>
-        @if($izinKeluar->isEmpty())
-            <div class="empty">Belum ada pengajuan izin keluar.</div>
-        @else
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Alasan</th>
-                            <th>Kelas</th>
-                            <th>Jam keluar</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($izinKeluar as $izin)
-                            <tr>
-                                <td>{{ $izin->alasan }}</td>
-                                <td>{{ $siswa?->kelas ?? '-' }}</td>
-                                <td class="time">{{ $izin->jam_keluar_rencana?->format('H:i') ?? $izin->jam_keluar_rencana }}</td>
-                                <td>
-                                    <span class="badge {{ $izin->status }}">
-                                        {{ ['pending' => 'Menunggu', 'approved' => 'Disetujui', 'rejected' => 'Ditolak'][$izin->status] }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+        <section class="card">
+            <div class="card-title">Form pengajuan izin keluar</div>
+            <div class="card-body">
+                @if(session('success'))
+                    <div class="alert success">{{ session('success') }}</div>
+                @endif
+                @if($errors->any())
+                    <div class="alert">{{ $errors->first() }}</div>
+                @endif
+
+                <form method="POST" action="{{ route('user.izin.store') }}" enctype="multipart/form-data">
+                    @csrf
+                    <div class="grid">
+                        <div class="field">
+                            <label for="kelas">Kelas</label>
+                            <input id="kelas" name="kelas" value="{{ old('kelas', $siswa?->kelas) }}" {{ $siswa ? 'readonly' : '' }} required placeholder="Contoh: XI RPL 2">
+                        </div>
+                        <div class="field">
+                            <label for="jam_keluar_rencana">Jam keluar rencana</label>
+                            <input type="time" id="jam_keluar_rencana" name="jam_keluar_rencana" value="{{ old('jam_keluar_rencana') }}" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="alasan">Alasan</label>
+                        <select id="alasan" name="alasan" required>
+                            <option value="" disabled {{ old('alasan') ? '' : 'selected' }}>Pilih alasan izin</option>
+                            @foreach(['Dijemput orang tua', 'Keperluan keluarga', 'Berobat', 'Lainnya'] as $alasan)
+                                <option value="{{ $alasan }}" @selected(old('alasan') === $alasan)>{{ $alasan }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="field" id="deskripsi-wrap" style="display: {{ old('alasan') === 'Lainnya' ? 'block' : 'none' }}">
+                        <label for="deskripsi">Jelaskan alasan izin</label>
+                        <input id="deskripsi" name="deskripsi" value="{{ old('deskripsi') }}" maxlength="500" placeholder="Tuliskan alasan izin secara singkat dan jelas">
+                        <p class="hint">Wajib diisi jika memilih alasan Lainnya.</p>
+                    </div>
+
+                    <div class="field">
+                        <label for="bukti">Foto atau video bukti izin</label>
+                        <input type="file" id="bukti" name="bukti" accept="image/png,image/jpeg,image/webp,video/mp4,video/quicktime,video/webm" required>
+                        <p class="hint">Wajib diisi. Foto atau video MP4, MOV, WEBM maksimal 20 MB.</p>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit">Ajukan izin</button>
+                        <p class="hint">Pengajuan akan masuk ke antrean guru piket. Kamu bisa pantau statusnya di riwayat bawah ini.</p>
+                    </div>
+                </form>
             </div>
-        @endif
-    </section>
-</main>
+        </section>
 
-<script>
-    const alasan = document.getElementById('alasan');
-    const deskripsiWrap = document.getElementById('deskripsi-wrap');
-    const deskripsi = document.getElementById('deskripsi');
+        <section class="card">
+            <div class="card-title">Riwayat izin saya</div>
+            @if($izinKeluar->isEmpty())
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <p>Belum ada pengajuan izin keluar.</p>
+                </div>
+            @else
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alasan</th>
+                                <th>Kelas</th>
+                                <th>Jam keluar</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($izinKeluar as $izin)
+                                <tr>
+                                    <td>{{ $izin->alasan }}</td>
+                                    <td>{{ $siswa?->kelas ?? '-' }}</td>
+                                    <td class="time">{{ $izin->jam_keluar_rencana?->format('H:i') ?? $izin->jam_keluar_rencana }}</td>
+                                    <td>
+                                        <span class="badge {{ $izin->status }}">
+                                            {{ ['pending' => 'Menunggu', 'approved' => 'Disetujui', 'rejected' => 'Ditolak'][$izin->status] }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </section>
+    </div>
+@endsection
 
-    function toggleDeskripsi() {
-        const lainnya = alasan.value === 'Lainnya';
-        deskripsiWrap.style.display = lainnya ? 'block' : 'none';
-        deskripsi.required = lainnya;
-        if (!lainnya) deskripsi.value = '';
-    }
+@section('scripts')
+    <script>
+        const alasan = document.getElementById('alasan');
+        const deskripsiWrap = document.getElementById('deskripsi-wrap');
+        const deskripsi = document.getElementById('deskripsi');
 
-    alasan.addEventListener('change', toggleDeskripsi);
-    toggleDeskripsi();
-</script>
-</body>
-</html>
+        function toggleDeskripsi() {
+            const lainnya = alasan.value === 'Lainnya';
+            deskripsiWrap.style.display = lainnya ? 'block' : 'none';
+            deskripsi.required = lainnya;
+            if (!lainnya) deskripsi.value = '';
+        }
+
+        alasan.addEventListener('change', toggleDeskripsi);
+        toggleDeskripsi();
+    </script>
+@endsection

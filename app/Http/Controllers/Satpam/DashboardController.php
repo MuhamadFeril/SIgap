@@ -24,24 +24,22 @@ class DashboardController extends Controller
                     'siswaSedangKeluar' => 0,
                     'jadwalHariIni' => null,
                     'tukarShiftMasuk' => 0,
+                    'daftarMenungguKeluar' => collect(),
                 ]);
             }
 
-            // Izin keluar yang perlu ditandai keluar (semua yang sudah disetujui
-            // dan belum dicatat keluar, terlepas dari tanggal pengajuan)
-            $izinMenungguKeluar = IzinKeluar::with('siswa.user')
-                ->where('status', 'approved')
+            // Izin keluar yang perlu ditandai keluar (sudah disetujui, belum keluar)
+            $izinMenungguKeluar = IzinKeluar::where('status', 'approved')
                 ->whereNull('jam_keluar_aktual')
                 ->count();
 
-            // Siswa yang sedang keluar
-            $siswaSedangKeluar = IzinKeluar::with('siswa.user')
-                ->where('status', 'approved')
+            // Siswa yang sedang keluar (sudah keluar, belum kembali)
+            $siswaSedangKeluar = IzinKeluar::where('status', 'approved')
                 ->whereNotNull('jam_keluar_aktual')
                 ->whereNull('jam_kembali_aktual')
                 ->count();
 
-            // Jadwal hari ini (terbaru = jadwal baru dari admin diprioritaskan)
+            // Jadwal hari ini
             $jadwalHariIni = JadwalSatpam::where('satpam_id', $satpam->id)
                 ->whereDate('tanggal', today())
                 ->orderByDesc('id')
@@ -52,21 +50,29 @@ class DashboardController extends Controller
                 ->where('status', 'pending')
                 ->count();
 
+            // Daftar lengkap siswa yang izinnya sudah disetujui & menunggu ditandai keluar
+            $daftarMenungguKeluar = IzinKeluar::with('siswa.user', 'disetujuiOleh')
+                ->where('status', 'approved')
+                ->whereNull('jam_keluar_aktual')
+                ->latest('waktu_keputusan')
+                ->get();
+
             return view('satpam.dashboard', compact(
                 'satpam',
                 'izinMenungguKeluar',
                 'siswaSedangKeluar',
                 'jadwalHariIni',
-                'tukarShiftMasuk'
+                'tukarShiftMasuk',
+                'daftarMenungguKeluar'
             ));
         } catch (\Exception $e) {
-            // Return error message if something goes wrong
             return view('satpam.dashboard', [
                 'satpam' => auth()->user()?->satpam,
                 'izinMenungguKeluar' => 0,
                 'siswaSedangKeluar' => 0,
                 'jadwalHariIni' => null,
                 'tukarShiftMasuk' => 0,
+                'daftarMenungguKeluar' => collect(),
                 'error' => $e->getMessage()
             ]);
         }

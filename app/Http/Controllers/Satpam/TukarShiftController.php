@@ -163,7 +163,7 @@ class TukarShiftController extends Controller
         return view('satpam.tukar_shift.permintaan-masuk', compact('permintaanMasuk', 'statusCounts'));
     }
 
-    public function approve(TukarShift $tukarShift)
+    public function approve(Request $request, TukarShift $tukarShift)
     {
         $satpam = $this->currentSatpam();
 

@@ -339,19 +339,30 @@
                 <p>Masuk untuk mengakses dashboard sesuai role Anda</p>
             </div>
 
+            @if (session('error'))
+                <div class="alert-error">
+                    <span>⚠</span>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
+
             @if ($errors->any())
                 <div class="alert-error">
                     <span>⚠</span>
-                    <span>{{ $errors->first() }}</span>
+                    <div>
+                        @foreach ($errors->all() as $error)
+                            <div>{{ $error }}</div>
+                        @endforeach
+                    </div>
                 </div>
             @endif
 
             <form method="POST" action="{{ route('login.submit') }}">
                 @csrf
                 <div class="form-group">
-                    <label for="email" class="form-label">Email</label>
+                    <label for="email" class="form-label">Email / Akun</label>
                     <div class="input-wrap">
-                        <input type="email" 
+                        <input type="text" 
                                class="form-control" 
                                id="email" 
                                name="email" 

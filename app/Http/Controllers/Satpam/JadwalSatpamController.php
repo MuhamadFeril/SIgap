@@ -87,6 +87,10 @@ class JadwalSatpamController extends Controller
             return redirect()->back()->with('error', 'Anda sudah presensi pulang');
         }
 
+        if ($jadwalSatpam->jam_pulang && now()->lt($jadwalSatpam->jam_pulang)) {
+            return redirect()->back()->with('error', 'Belum waktunya presensi pulang (jam pulang ' . $jadwalSatpam->jam_pulang->format('H:i') . ')');
+        }
+
         $jadwalSatpam->update([
             'waktu_pulang' => now(),
         ]);
