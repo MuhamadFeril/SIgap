@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\IzinKeluar;
 use App\Models\LogGerbang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class IzinKeluarController extends Controller
 {
@@ -20,20 +21,40 @@ class IzinKeluarController extends Controller
         return view('satpam.izin_keluar.index', compact('izinKeluar'));
     }
 
+    public function show(IzinKeluar $izinKeluar)
+    {
+        $izinKeluar->load('siswa.user', 'disetujuiOleh', 'dicatatKeluarOleh', 'dicatatKembaliOleh');
+
+        return view('satpam.izin_keluar.show', compact('izinKeluar'));
+    }
+
     public function tandaiKeluar(Request $request, IzinKeluar $izinKeluar)
     {
-        if ($izinKeluar->status !== 'approved') {
-            return redirect()->back()->with('error', 'Hanya izin yang disetujui yang bisa ditandai keluar');
+        if (!in_array($izinKeluar->status, [IzinKeluar::STATUS_APPROVED, IzinKeluar::STATUS_SAKIT])) {
+            return redirect()->back()->with('error', 'Hanya izin yang disetujui atau sakit yang bisa ditandai keluar');
         }
 
         if ($izinKeluar->jam_keluar_aktual) {
             return redirect()->back()->with('error', 'Siswa sudah ditandai keluar');
         }
 
-        $izinKeluar->update([
+        $request->validate([
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $data = [
             'jam_keluar_aktual' => now(),
             'dicatat_keluar_oleh' => auth()->id(),
-        ]);
+        ];
+
+        if ($request->hasFile('foto')) {
+            if ($izinKeluar->foto_keluar_path) {
+                Storage::disk('public')->delete($izinKeluar->foto_keluar_path);
+            }
+            $data['foto_keluar_path'] = $request->file('foto')->store('bukti-keluar', 'public');
+        }
+
+        $izinKeluar->update($data);
 
         // Create log gerbang
         LogGerbang::create([
@@ -56,10 +77,26 @@ class IzinKeluarController extends Controller
             return redirect()->back()->with('error', 'Siswa sudah ditandai kembali');
         }
 
-        $izinKeluar->update([
+        $request->validate([
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $data = [
             'jam_kembali_aktual' => now(),
             'dicatat_kembali_oleh' => auth()->id(),
-        ]);
+        ];
+
+        $izinKeluar->jam_kembali_aktual = $data['jam_kembali_aktual'];
+        $data['terlambat'] = $izinKeluar->isTerlambat();
+
+        if ($request->hasFile('foto')) {
+            if ($izinKeluar->foto_kembali_path) {
+                Storage::disk('public')->delete($izinKeluar->foto_kembali_path);
+            }
+            $data['foto_kembali_path'] = $request->file('foto')->store('bukti-keluar', 'public');
+        }
+
+        $izinKeluar->update($data);
 
         // Create log gerbang
         LogGerbang::create([
@@ -82,7 +119,9 @@ class IzinKeluarController extends Controller
             ->latest()
             ->get();
 
-        return view('satpam.izin_keluar.keluar_hari_ini', compact('izinKeluar'));
+        return view('satpam.izin_keluar.keluar-hari-ini', [
+            'izinKeluarHariIni' => $izinKeluar,
+        ]);
     }
 
     public function riwayat()

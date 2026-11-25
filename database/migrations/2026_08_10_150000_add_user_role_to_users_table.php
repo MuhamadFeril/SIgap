@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['user', 'siswa', 'guru', 'admin', 'satpam'])->change();
-        });
+        // Avoid doctrine/dbal dependency: modify the enum using raw SQL.
+        // Idempotent: the role column already allows these values.
+        DB::statement("ALTER TABLE users MODIFY role ENUM('user','siswa','guru','admin','satpam') NOT NULL");
     }
 
     /**
@@ -21,8 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['siswa', 'guru', 'admin', 'satpam'])->change();
-        });
+        DB::statement("ALTER TABLE users MODIFY role ENUM('siswa','guru','admin','satpam') NOT NULL");
     }
 };

@@ -43,16 +43,16 @@ class Satpam extends Model
 
     public function izinKeluarDicatatKeluar()
     {
-        return $this->hasMany(IzinKeluar::class, 'dicatat_keluar_oleh');
+        return $this->hasMany(IzinKeluar::class, 'dicatat_keluar_oleh', 'user_id');
     }
 
     public function izinKeluarDicatatKembali()
     {
-        return $this->hasMany(IzinKeluar::class, 'dicatat_kembali_oleh');
+        return $this->hasMany(IzinKeluar::class, 'dicatat_kembali_oleh', 'user_id');
     }
 
     public function logGerbang()
     {
-        return $this->hasMany(LogGerbang::class, 'dicatat_oleh');
+        return $this->hasMany(LogGerbang::class, 'dicatat_oleh', 'user_id');
     }
 }

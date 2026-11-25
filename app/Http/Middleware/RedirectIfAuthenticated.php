@@ -25,12 +25,11 @@ class RedirectIfAuthenticated
                 
                 // Redirect based on role
                 return match($user->role) {
-                    'admin' => redirect()->route('admin.dashboard'),
-                    'guru' => redirect()->route('guru.dashboard'),
-                    'siswa' => redirect()->route('siswa.dashboard'),
+                    'admin'  => redirect()->route('admin.dashboard'),
+                    'guru'   => redirect()->route('guru.dashboard'),
+                    'siswa', 'user' => redirect()->route('siswa.dashboard'), // 'user' is legacy alias for siswa
                     'satpam' => redirect()->route('satpam.dashboard'),
-                    'user' => redirect()->route('user.dashboard'),
-                    default => redirect('/'),
+                    default  => redirect('/'),
                 };
             }
         }
